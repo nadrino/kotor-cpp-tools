@@ -58,4 +58,5 @@ else()
   add_definitions( -D LOGGER_PREFIX_FORMAT="\\\"{TIME} {USER_HEADER}"\\\" )
 endif()
 
-
+add_definitions( -D LOGGER_ENABLE_COLORS=1 )
+add_definitions( -D LOGGER_ENABLE_COLORS_ON_USER_HEADER=1 )

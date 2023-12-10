@@ -23,3 +23,5 @@ target_include_directories( ${LIB_NAME} PUBLIC
 
 #target_link_libraries( GundamUtils PUBLIC
 #)
+
+install(TARGETS ${LIB_NAME} DESTINATION lib)

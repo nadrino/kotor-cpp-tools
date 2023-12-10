@@ -35,8 +35,6 @@ struct LipFileContent{
     // 5 bytes
     float time{std::nanf("")};
     unsigned char shape{};
-
-
   };
 
   std::vector<KeyFrame> keyFrameList{};
@@ -62,6 +60,15 @@ private:
 
 
 };
+
+template<typename T> void fillData( std::ifstream& file_, T& buffer_ ){
+  file_.read( reinterpret_cast<char*>(&buffer_), sizeof(T) );
+}
+void fillData( std::ifstream& file_, std::string& buffer_, size_t size_ ){
+  buffer_.clear();
+  buffer_.resize(size_);
+  file_.read( buffer_.data(), long(size_) );
+}
 
 
 #endif //KOTOR_CPP_TOOLS_LIPFILE_H
