@@ -16,7 +16,7 @@
 #define PROJECT_VERSION_BRANCH "@PROJECT_VERSION_BRANCH@"
 
 
-namespace GundamVersionConfig{
+namespace VersionConfig{
 
   inline std::string getVersionStr(){ return {VERSION_STR}; }
 

@@ -3,6 +3,7 @@
 //
 
 #include "LipFile.h"
+#include "VersionConfig.h"
 
 #include "GenericToolbox.h"
 #include "CmdLineParser.h"
@@ -14,31 +15,40 @@ LoggerInit([]{
 
 int main(int argc, char** argv){
 
+  LogInfo << FILENAME << " version: " << VersionConfig::getVersionStr() << std::endl;
+
   // --------------------------
   // Read Command Line Args:
   // --------------------------
-  CmdLineParser clParser;
+  CmdLineParser clp;
 
-  clParser.addDummyOption("Main options:");
-  clParser.addOption("filePath", {"-f", "--file-path"}, "Path to .lip file");
+  clp.addDummyOption("Main options:");
+  clp.addOption("filePath", {"-f", "--file-path"}, "Path to .lip file");
+  clp.addOption("output", {"-o"}, "Output file");
 
   LogInfo << "Usage: " << std::endl;
-  LogInfo << clParser.getConfigSummary() << std::endl << std::endl;
+  LogInfo << clp.getConfigSummary() << std::endl << std::endl;
 
-  clParser.parseCmdLine(argc, argv);
+  clp.parseCmdLine(argc, argv);
 
-  LogThrowIf(clParser.isNoOptionTriggered(), "No option was provided.");
+  LogThrowIf(clp.isNoOptionTriggered(), "No option was provided.");
 
   LogInfo << "Provided arguments: " << std::endl;
-  LogInfo << clParser.getValueSummary() << std::endl << std::endl;
+  LogInfo << clp.getValueSummary() << std::endl << std::endl;
 
   // Sanity checks
-  LogThrowIf(not clParser.isOptionTriggered("filePath"), "No lip file provided.");
+  LogThrowIf(not clp.isOptionTriggered("filePath"), "No lip file provided.");
 
   LipFile lipFile;
-  lipFile.setFilePath( clParser.getOptionVal<std::string>("filePath") );
+  lipFile.setFilePath( clp.getOptionVal<std::string>("filePath") );
   lipFile.load();
 
   LogDebug << lipFile.getSummary() << std::endl;
+
+  if( clp.isOptionTriggered("output") ){
+    LogInfo << "Writing: " << clp.getOptionVal<std::string>("output") << std::endl;
+    std::ofstream ofile(clp.getOptionVal<std::string>("output"), std::ios::binary);
+    lipFile.getContent().write(ofile);
+  }
 
 }

@@ -39,6 +39,7 @@ struct LipFileContent{
   std::vector<KeyFrame> keyFrameList{};
 
   void read(std::ifstream& file_);
+  void write(std::ofstream& file_) const;
 
   [[nodiscard]] std::string getSummary() const;
 

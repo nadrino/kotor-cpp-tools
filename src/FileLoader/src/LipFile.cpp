@@ -14,26 +14,6 @@ LoggerInit([]{
 });
 
 
-void LipFile::load(){
-  LogInfo << "Loading LIP file: " << _filePath_ << std::endl;
-  LogThrowIf(_filePath_.empty(), "Can't load file: file path not set.");
-
-  std::ifstream file(_filePath_, std::ios::binary);
-
-  LogThrowIf(not file.is_open(), "Could not open file: " << _filePath_);
-  _content_.read(file);
-}
-
-[[nodiscard]] std::string LipFile::getSummary() const{
-  std::stringstream ss;
-  ss << "LipFile: file(" << _filePath_ << ")";
-  if( not _filePath_.empty() ){
-    ss << " content:" << std::endl;
-    ss << _content_.getSummary();
-  }
-  return ss.str();
-}
-
 std::string LipFileContent::getSummary() const{
   std::stringstream ss;
   ss << fileType << "/" << fileVersion << ": duration(" << duration << "), entryCount(" << entryCount << ")";
@@ -50,8 +30,6 @@ std::string LipFileContent::getSummary() const{
   return ss.str();
 }
 void LipFileContent::read(std::ifstream& file_){
-  // https://kotor-modding.fandom.com/wiki/LIP_Format
-
   GenericToolbox::fillData(file_, fileType, 4);
   fileType.pop_back(); // remove last char
 
@@ -67,3 +45,34 @@ void LipFileContent::read(std::ifstream& file_){
     GenericToolbox::fillData(file_, keyFrameList.back().shape);
   }
 }
+void LipFileContent::write( std::ofstream &file_ ) const {
+  GenericToolbox::writeData(file_, fileType); // 3 bytes
+  GenericToolbox::writeData(file_, ' ');
+  GenericToolbox::writeData(file_, fileVersion);
+  GenericToolbox::writeData(file_, duration);
+  GenericToolbox::writeData(file_, entryCount);
+  for( auto& keyFrame : keyFrameList ){
+    GenericToolbox::writeData(file_, keyFrame.time);
+    GenericToolbox::writeData(file_, keyFrame.shape);
+  }
+}
+
+void LipFile::load(){
+  LogInfo << "Loading LIP file: " << _filePath_ << std::endl;
+  LogThrowIf(_filePath_.empty(), "Can't load file: file path not set.");
+
+  std::ifstream file(_filePath_, std::ios::binary);
+
+  LogThrowIf(not file.is_open(), "Could not open file: " << _filePath_);
+  _content_.read(file);
+}
+[[nodiscard]] std::string LipFile::getSummary() const{
+  std::stringstream ss;
+  ss << "LipFile: file(" << _filePath_ << ")";
+  if( not _filePath_.empty() ){
+    ss << " content:" << std::endl;
+    ss << _content_.getSummary();
+  }
+  return ss.str();
+}
+
