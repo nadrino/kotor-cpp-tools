@@ -39,6 +39,9 @@ struct LipFileContent{
 
   std::vector<KeyFrame> keyFrameList{};
 
+  [[nodiscard]] std::string getSummary() const;
+  void read(std::ifstream& file_);
+
 };
 
 class LipFile{
@@ -48,6 +51,9 @@ public:
 
   // setters
   void setFilePath(const std::string& filePath_){ _filePath_ = filePath_; }
+
+  // const-getters
+  [[nodiscard]] const LipFileContent& getContent() const { return _content_; }
 
   // core
   void load();
