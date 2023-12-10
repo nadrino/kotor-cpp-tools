@@ -50,21 +50,20 @@ std::string LipFileContent::getSummary() const{
   return ss.str();
 }
 void LipFileContent::read(std::ifstream& file_){
-
   // https://kotor-modding.fandom.com/wiki/LIP_Format
 
-  fillData(file_, fileType, 4);
+  GenericToolbox::fillData(file_, fileType, 4);
   fileType.pop_back(); // remove last char
 
-  fillData(file_, fileVersion, 4);
-  fillData(file_, duration);
-  fillData(file_, entryCount);
+  GenericToolbox::fillData(file_, fileVersion, 4);
+  GenericToolbox::fillData(file_, duration);
+  GenericToolbox::fillData(file_, entryCount);
 
   // Loop over entries
   keyFrameList.reserve(entryCount);
   for( unsigned int iEntry = 0 ; iEntry < entryCount ; iEntry++ ){
     keyFrameList.emplace_back();
-    fillData(file_, keyFrameList.back().time);
-    fillData(file_, keyFrameList.back().shape);
+    GenericToolbox::fillData(file_, keyFrameList.back().time);
+    GenericToolbox::fillData(file_, keyFrameList.back().shape);
   }
 }
