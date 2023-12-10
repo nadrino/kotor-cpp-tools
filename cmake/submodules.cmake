@@ -41,15 +41,7 @@ include_directories(submodules/cpp-generic-toolbox/include)
 #install(FILES ${CPP_GENERIC_TOOLBOX_HEADERS_IMPL} DESTINATION include/implementation)
 
 add_definitions( -D PROGRESS_BAR_FILL_TAG="\\\"KOTOR"\\\" )
-if (ENABLE_COLOR_OUTPUT)
-  add_definitions( -D PROGRESS_BAR_ENABLE_RAINBOW=1 )
-else (ENABLE_COLOR_OUTPUT)
-  # add_definitions( -D PROGRESS_BAR_ENABLE_RAINBOW=0 )
-  add_definitions( -D CPP_GENERIC_TOOLBOX_NOCOLOR )
-endif (ENABLE_COLOR_OUTPUT)
-if( ENABLE_BATCH_MODE )
-  add_definitions( -D CPP_GENERIC_TOOLBOX_BATCH )
-endif( ENABLE_BATCH_MODE )
+add_definitions( -D PROGRESS_BAR_ENABLE_RAINBOW=1 )
 
 ## Add the Logger
 # Reproduce needed parts of the simple-cpp-logger CMakeLists.txt
@@ -64,15 +56,6 @@ if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
 else()
   cmessage( STATUS "Logger set in release mode." )
   add_definitions( -D LOGGER_PREFIX_FORMAT="\\\"{TIME} {USER_HEADER}"\\\" )
-endif()
-
-if(NOT ENABLE_COLOR_OUTPUT)
-  cmessage( STATUS "Color output is disabled." )
-  add_definitions( -D LOGGER_ENABLE_COLORS=0 )
-  add_definitions( -D LOGGER_ENABLE_COLORS_ON_USER_HEADER=0 )
-else()
-  add_definitions( -D LOGGER_ENABLE_COLORS=1 )
-  add_definitions( -D LOGGER_ENABLE_COLORS_ON_USER_HEADER=1 )
 endif()
 
 

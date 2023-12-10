@@ -28,3 +28,13 @@ include( ${CMAKE_SOURCE_DIR}/cmake/compiler.cmake )
 
 # setting up submodule libraries
 include( ${CMAKE_SOURCE_DIR}/cmake/submodules.cmake )
+
+# defining modules
+include( ${CMAKE_SOURCE_DIR}/cmake/modules.cmake )
+
+# defining applications
+include( ${CMAKE_SOURCE_DIR}/cmake/applications.cmake )
+
+
+message("")
+cmessage( WARNING "Identified ${PROJECT_NAME} version: ${PROJECT_FULL_VERSION_STR}" )
