@@ -24,14 +24,28 @@ void LipFile::load(){
   _content_.read(file);
 }
 
+[[nodiscard]] std::string LipFile::getSummary() const{
+  std::stringstream ss;
+  ss << "LipFile: file(" << _filePath_ << ")";
+  if( not _filePath_.empty() ){
+    ss << " content:" << std::endl;
+    ss << _content_.getSummary();
+  }
+  return ss.str();
+}
+
 std::string LipFileContent::getSummary() const{
   std::stringstream ss;
   ss << fileType << "/" << fileVersion << ": duration(" << duration << "), entryCount(" << entryCount << ")";
-  for( auto& keyFrame : keyFrameList ){
-    ss << std::endl << "  { ";
-    ss << "time(" << keyFrame.time << "), ";
-    ss << "shape(" << LipShapeEnumNamespace::toString(keyFrame.shape, true) << ")";
-    ss << " }";
+  if( entryCount != 0 ){
+    ss << " {";
+    for( auto& keyFrame : keyFrameList ){
+      ss << std::endl << "  { ";
+      ss << "time(" << keyFrame.time << "), ";
+      ss << "shape(" << LipShapeEnumNamespace::toString(keyFrame.shape, true) << ")";
+      ss << " },";
+    }
+    ss << std::endl << "}";
   }
   return ss.str();
 }

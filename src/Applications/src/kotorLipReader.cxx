@@ -39,6 +39,6 @@ int main(int argc, char** argv){
   lipFile.setFilePath( clParser.getOptionVal<std::string>("filePath") );
   lipFile.load();
 
-  LogDebug << lipFile.getContent().getSummary() << std::endl;
+  LogDebug << lipFile.getSummary() << std::endl;
 
 }

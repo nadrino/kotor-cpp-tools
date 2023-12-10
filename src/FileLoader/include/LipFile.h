@@ -36,11 +36,11 @@ struct LipFileContent{
     float time{std::nanf("")};
     unsigned char shape{};
   };
-
   std::vector<KeyFrame> keyFrameList{};
 
-  [[nodiscard]] std::string getSummary() const;
   void read(std::ifstream& file_);
+
+  [[nodiscard]] std::string getSummary() const;
 
 };
 
@@ -57,6 +57,8 @@ public:
 
   // core
   void load();
+
+  [[nodiscard]] std::string getSummary() const;
 
 
 private:
