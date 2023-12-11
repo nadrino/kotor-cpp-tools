@@ -56,6 +56,16 @@ void LipFileContent::write( std::ofstream &file_ ) const {
     GenericToolbox::writeData(file_, keyFrame.shape);
   }
 }
+void LipFileContent::write(nlohmann::json& json_) const{
+  json_["fileType"] = fileType;
+  json_["fileVersion"] = fileVersion;
+  json_["duration"] = duration;
+  for( auto& keyFrame : keyFrameList ){
+    json_["keyFrameList"].emplace_back();
+    json_["keyFrameList"].back()["time"] = keyFrame.time;
+    json_["keyFrameList"].back()["shape"] = LipShapeEnumNamespace::toString(keyFrame.shape, true);
+  }
+}
 
 void LipFile::load(){
   LogInfo << "Loading LIP file: " << _filePath_ << std::endl;

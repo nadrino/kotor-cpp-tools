@@ -7,6 +7,8 @@
 
 #include "GenericToolbox.h"
 
+#include "nlohmann/json.hpp"
+
 #include <string>
 #include <vector>
 
@@ -39,8 +41,9 @@ struct LipFileContent{
   std::vector<KeyFrame> keyFrameList{};
 
   void read(std::ifstream& file_);
-  void write(std::ofstream& file_) const;
 
+  void write(std::ofstream& file_) const;
+  void write(nlohmann::json& json_) const;
   [[nodiscard]] std::string getSummary() const;
 
 };
@@ -55,6 +58,7 @@ public:
 
   // const-getters
   [[nodiscard]] const LipFileContent& getContent() const { return _content_; }
+  LipFileContent& getContent() { return _content_; }
 
   // core
   void load();
