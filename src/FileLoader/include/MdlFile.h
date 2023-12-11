@@ -31,7 +31,8 @@ public:
   FileHeader fileHeader{};
 
   struct ModelHeader{
-    std::array<char, 80> geometryHeader{}; // 80 byte
+    unsigned long functionRef{};
+    std::array<char, 72> geometryHeader{}; // 80 byte
     unsigned char modelType{};
     unsigned char unknown{};
     unsigned char padding{};
