@@ -5,6 +5,8 @@
 #ifndef KOTOR_CPP_TOOLS_LIPFILE_H
 #define KOTOR_CPP_TOOLS_LIPFILE_H
 
+#include "KotorBinaryFile.h"
+
 #include "GenericToolbox.h"
 
 #include "nlohmann/json.hpp"
@@ -24,8 +26,9 @@ ENUM_EXPANDER(
 );
 
 
-struct LipFileContent{
+class LipFile : public KotorBinaryFile {
 
+public:
   // reference: https://kotor-modding.fandom.com/wiki/LIP_Format
 
   std::string fileType{}; // LIP
@@ -40,35 +43,18 @@ struct LipFileContent{
   };
   std::vector<KeyFrame> keyFrameList{};
 
-  void read(std::ifstream& file_);
-
-  void write(std::ofstream& file_) const;
-  void write(nlohmann::json& json_) const;
-  [[nodiscard]] std::string getSummary() const;
-
-};
-
-class LipFile{
-
-public:
   LipFile() = default;
 
-  // setters
-  void setFilePath(const std::string& filePath_){ _filePath_ = filePath_; }
+  // overrides - binary
+  void readBinary(std::ifstream& file_) override;
+  void writeBinary(std::ofstream& file_) const override;
 
-  // const-getters
-  [[nodiscard]] const LipFileContent& getContent() const { return _content_; }
-  LipFileContent& getContent() { return _content_; }
+  // overrides - json
+  void readJson(nlohmann::json& json_) override;
+  void writeJson(nlohmann::json& json_) const override;
 
-  // core
-  void load();
-
-  [[nodiscard]] std::string getSummary() const;
-
-
-private:
-  std::string _filePath_{};
-  LipFileContent _content_{};
+  // overrides - misc
+  [[nodiscard]] std::string getSummary() const override;
 
 };
 

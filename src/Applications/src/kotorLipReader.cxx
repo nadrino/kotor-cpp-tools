@@ -10,6 +10,8 @@
 #include "CmdLineParser.h"
 #include "Logger.h"
 
+#include "string"
+
 LoggerInit([]{
   Logger::getUserHeader() << "[" << FILENAME << "]";
 });
@@ -41,9 +43,10 @@ int main(int argc, char** argv){
   // Sanity checks
   LogThrowIf(not clp.isOptionTriggered("filePath"), "No lip file provided.");
 
-  LipFile lipFile;
-  lipFile.setFilePath( clp.getOptionVal<std::string>("filePath") );
-  lipFile.load();
+  LipFile lipFile{};
+
+  LogInfo << "Reading file: " << clp.getOptionVal<std::string>("filePath") << std::endl;
+  lipFile.read( clp.getOptionVal<std::string>("filePath") );
 
   if( clp.isOptionTriggered("verbose") ){
     LogDebug << lipFile.getSummary() << std::endl;
@@ -52,24 +55,7 @@ int main(int argc, char** argv){
   if( clp.isOptionTriggered("output") ){
     auto outPath{clp.getOptionVal<std::string>("output")};
     LogWarning << "Output file path: " << outPath << std::endl;
-
-    if( GenericToolbox::doesFilePathHasExtension(outPath, "lip") ){
-      LogInfo << "Writing .lip file..." << std::endl;
-      std::ofstream ofile(clp.getOptionVal<std::string>("output"), std::ios::binary);
-      lipFile.getContent().write(ofile);
-    }
-    else if( GenericToolbox::doesFilePathHasExtension(outPath, "json") ){
-      LogInfo << "Writing .json file..." << std::endl;
-      nlohmann::json jsonData;
-      lipFile.getContent().write(jsonData);
-      GenericToolbox::dumpStringInFile(
-          outPath, GenericToolbox::Json::toReadableString(jsonData)
-      );
-    }
-    else{
-      LogThrow("Unkown ext.");
-    }
-
+    lipFile.write( clp.getOptionVal<std::string>("output") );
   }
 
 }
