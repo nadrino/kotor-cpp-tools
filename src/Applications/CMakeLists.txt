@@ -2,6 +2,7 @@
 
 set( APP_SRC_LIST
     kotorLipReader
+    kotorMdlReader
 )
 
 # Now define the frontends
@@ -12,4 +13,5 @@ foreach( app ${APP_SRC_LIST} )
 endforeach()
 
 target_link_libraries( kotorLipReader KotorFileLoader )
+target_link_libraries( kotorMdlReader KotorFileLoader )
 
