@@ -31,7 +31,7 @@ public:
   FileHeader fileHeader{};
 
   struct ModelHeader{
-    std::array<unsigned char, 80> geometryHeader{}; // 80 byte
+    std::array<char, 80> geometryHeader{}; // 80 byte
     unsigned char modelType{};
     unsigned char unknown{};
     unsigned char padding{};
@@ -45,7 +45,7 @@ public:
     std::array<float, 3> boundingBoxMax{};
     float radius{};
     float animationScale{};
-    std::array<unsigned char, 32> supermodelName{};
+    std::array<char, 32> supermodelName{};
   };
   ModelHeader modelHeader{};
 

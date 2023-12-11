@@ -6,6 +6,8 @@
 
 #include "GenericToolbox.h"
 
+#include "string"
+
 
 void MdlFile::readBinary(std::ifstream& file_){
   // File Header
@@ -42,7 +44,7 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["modelHeader"]["modelType"] = modelHeader.modelType;
   json_["modelHeader"]["unknown"] = modelHeader.unknown;
   json_["modelHeader"]["padding"] = modelHeader.padding;
-  json_["modelHeader"]["disableFog"] = modelHeader.disableFog;
+  json_["modelHeader"]["disableFog"] = bool(modelHeader.disableFog);
   json_["modelHeader"]["childModelCount"] = modelHeader.childModelCount;
   json_["modelHeader"]["animationArrayOffset"] = modelHeader.animationArrayOffset;
   json_["modelHeader"]["animationCount"] = modelHeader.animationCount;
@@ -52,5 +54,5 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["modelHeader"]["boundingBoxMax"] = modelHeader.boundingBoxMax;
   json_["modelHeader"]["radius"] = modelHeader.radius;
   json_["modelHeader"]["animationScale"] = modelHeader.animationScale;
-  json_["modelHeader"]["supermodelName"] = modelHeader.supermodelName;
+  json_["modelHeader"]["supermodelName"] = std::string(modelHeader.supermodelName.data());
 }
