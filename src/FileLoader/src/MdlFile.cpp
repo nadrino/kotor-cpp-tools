@@ -16,8 +16,15 @@ void MdlFile::readBinary(std::ifstream& file_){
   GenericToolbox::fillData(file_, fileHeader.mdxSize);
 
   // Model Header - Size is 168 bytes, including the geometry header.
-  GenericToolbox::fillData(file_, modelHeader.functionRef);
-  GenericToolbox::fillData(file_, modelHeader.geometryHeader);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.functionPointer);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.functionPointer2);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.modelName);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.rootNodeOffset);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.nodeCount);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.unknown);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.geometryType);
+  GenericToolbox::fillData(file_, modelHeader.geometryHeader.padding);
+
   GenericToolbox::fillData(file_, modelHeader.modelType);
   GenericToolbox::fillData(file_, modelHeader.unknown);
   GenericToolbox::fillData(file_, modelHeader.padding);
@@ -41,8 +48,15 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["fileHeader"]["mdxSize"] = fileHeader.mdxSize;
 
   // Model Header - Size is 168 bytes, including the geometry header.
-  json_["modelHeader"]["functionRef"] = modelHeader.functionRef;
-  json_["modelHeader"]["geometryHeader"] = std::string(modelHeader.geometryHeader.data());
+  json_["modelHeader"]["geometryHeader"]["functionPointer"] = modelHeader.geometryHeader.functionPointer;
+  json_["modelHeader"]["geometryHeader"]["functionPointer2"] = modelHeader.geometryHeader.functionPointer2;
+  json_["modelHeader"]["geometryHeader"]["modelName"] = std::string(modelHeader.geometryHeader.modelName.data());
+  json_["modelHeader"]["geometryHeader"]["rootNodeOffset"] = modelHeader.geometryHeader.rootNodeOffset;
+  json_["modelHeader"]["geometryHeader"]["nodeCount"] = modelHeader.geometryHeader.nodeCount;
+  json_["modelHeader"]["geometryHeader"]["unknown"] = modelHeader.geometryHeader.unknown;
+  json_["modelHeader"]["geometryHeader"]["geometryType"] = modelHeader.geometryHeader.geometryType;
+  json_["modelHeader"]["geometryHeader"]["padding"] = modelHeader.geometryHeader.padding;
+
   json_["modelHeader"]["modelType"] = modelHeader.modelType;
   json_["modelHeader"]["unknown"] = modelHeader.unknown;
   json_["modelHeader"]["padding"] = modelHeader.padding;

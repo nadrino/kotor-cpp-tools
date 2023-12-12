@@ -10,6 +10,10 @@
 #include "array"
 
 
+
+
+
+
 class MdlFile : public KotorBinaryFile{
 
 public:
@@ -31,8 +35,19 @@ public:
   FileHeader fileHeader{};
 
   struct ModelHeader{
-    unsigned long functionRef{};
-    std::array<char, 72> geometryHeader{}; // 80 byte
+
+    struct GeometryHeader{
+      unsigned int functionPointer{}; // K1 = 4273776, K1 Anim = 4273392, K2 = 4285200, K2 Anim = 4284816
+      unsigned int functionPointer2{}; // K1 = 4216096, K1 Anim = 4451552, K2 = 4216320, K2 Anim = 4522928
+      std::array<char, 32> modelName{};
+      unsigned int rootNodeOffset{};
+      unsigned int nodeCount{};
+      std::array<unsigned int, 7> unknown{};
+      unsigned char geometryType{};
+      std::array<unsigned char, 3> padding{}; // 0x02 = Root Node, 0x05 = Animation Node
+    };
+
+    GeometryHeader geometryHeader{};
     unsigned char modelType{};
     unsigned char unknown{};
     unsigned char padding{};
@@ -49,6 +64,17 @@ public:
     std::array<char, 32> supermodelName{};
   };
   ModelHeader modelHeader{};
+
+  struct NamesHeader{
+    unsigned int offsetToRootNode{};
+    unsigned int unused{};
+    unsigned int mdxFileSize{};
+    unsigned int mdxOffset{};
+    unsigned int namesArrayOffset{};
+    unsigned int namesUsedCount{};
+    unsigned int namesAllocatedCount{};
+  };
+  NamesHeader namesHeader{};
 
 
 
