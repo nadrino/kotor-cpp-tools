@@ -7,11 +7,25 @@
 
 #include "KotorBinaryFile.h"
 
-#include "array"
+#include <array>
+#include <iostream>
 
+#define MAKE_ENUM \
+  ENUM_NAME( NodeType ) \
+  ENUM_ENTRY( RootNode, 0x02 ) \
+  ENUM_ENTRY( AnimationNode, 0x05 )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
 
-
-
+#define MAKE_ENUM \
+  ENUM_NAME( GeometryType ) \
+  ENUM_TYPE( size_t ) \
+  ENUM_ENTRY( K1,      0x0040552000413670 ) \
+  ENUM_ENTRY( K1_Anim, 0x0043ece0004134f0 ) \
+  ENUM_ENTRY( K2,      0x0040560000416310 ) \
+  ENUM_ENTRY( K2_Anim, 0x004503b000416190 )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
 
 
 class MdlFile : public KotorBinaryFile{
@@ -37,8 +51,7 @@ public:
   struct ModelHeader{
 
     struct GeometryHeader{
-      unsigned int functionPointer{}; // K1 = 4273776, K1 Anim = 4273392, K2 = 4285200, K2 Anim = 4284816
-      unsigned int functionPointer2{}; // K1 = 4216096, K1 Anim = 4451552, K2 = 4216320, K2 Anim = 4522928
+      unsigned long functionPointer{}; // K1 = 4273776-4216096, K1 Anim = 4273392-4451552, K2 = 4285200-4216320, K2 Anim = 4284816-4522928
       std::array<char, 32> modelName{};
       unsigned int rootNodeOffset{};
       unsigned int nodeCount{};

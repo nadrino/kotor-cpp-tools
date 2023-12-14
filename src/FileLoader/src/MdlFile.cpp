@@ -17,7 +17,6 @@ void MdlFile::readBinary(std::ifstream& file_){
 
   // Model Header - Size is 168 bytes, including the geometry header.
   GenericToolbox::fillData(file_, modelHeader.geometryHeader.functionPointer);
-  GenericToolbox::fillData(file_, modelHeader.geometryHeader.functionPointer2);
   GenericToolbox::fillData(file_, modelHeader.geometryHeader.modelName);
   GenericToolbox::fillData(file_, modelHeader.geometryHeader.rootNodeOffset);
   GenericToolbox::fillData(file_, modelHeader.geometryHeader.nodeCount);
@@ -48,8 +47,7 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["fileHeader"]["mdxSize"] = fileHeader.mdxSize;
 
   // Model Header - Size is 168 bytes, including the geometry header.
-  json_["modelHeader"]["geometryHeader"]["functionPointer"] = modelHeader.geometryHeader.functionPointer;
-  json_["modelHeader"]["geometryHeader"]["functionPointer2"] = modelHeader.geometryHeader.functionPointer2;
+  json_["modelHeader"]["geometryHeader"]["functionPointer"] = GeometryType::toString(modelHeader.geometryHeader.functionPointer);
   json_["modelHeader"]["geometryHeader"]["modelName"] = std::string(modelHeader.geometryHeader.modelName.data());
   json_["modelHeader"]["geometryHeader"]["rootNodeOffset"] = modelHeader.geometryHeader.rootNodeOffset;
   json_["modelHeader"]["geometryHeader"]["nodeCount"] = modelHeader.geometryHeader.nodeCount;

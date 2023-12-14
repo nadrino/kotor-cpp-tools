@@ -2,8 +2,8 @@
 // Created by Adrien Blanchet on 10/12/2023.
 //
 
-#ifndef KOTOR_CPP_TOOLS_LIPFILE_H
-#define KOTOR_CPP_TOOLS_LIPFILE_H
+#ifndef KOTOR_CPP_TOOLS_LIPSYNCFILE_H
+#define KOTOR_CPP_TOOLS_LIPSYNCFILE_H
 
 #include "KotorBinaryFile.h"
 
@@ -15,21 +15,21 @@
 #include <vector>
 
 
-ENUM_EXPANDER(
-    LipShape, 0,
-    EE, EH,
-    SCHWA,
-    AH, OH, OOH, Y,
-    S_TS, F_V, N_NG,
-    TH, M_P_B,
-    T_D, J_SH, L_R, K_G
-);
+#define MAKE_ENUM \
+  ENUM_NAME( LipShape ) \
+  ENUM_ENTRY( EE, 0 ) ENUM_ENTRY( EH ) ENUM_ENTRY( SCHWA )   \
+  ENUM_ENTRY( AH ) ENUM_ENTRY( OH ) ENUM_ENTRY( OOH )   \
+  ENUM_ENTRY( Y ) ENUM_ENTRY( S_TS ) ENUM_ENTRY( F_V ) ENUM_ENTRY( N_NG )   \
+  ENUM_ENTRY( TH ) ENUM_ENTRY( M_P_B ) ENUM_ENTRY( T_D ) ENUM_ENTRY( J_SH )   \
+  ENUM_ENTRY( L_R ) ENUM_ENTRY( K_G )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
 
 
-class LipFile : public KotorBinaryFile {
+class LipSyncFile : public KotorBinaryFile {
 
 public:
-  LipFile() = default;
+  LipSyncFile() = default;
 
   // overrides - binary
   void readBinary(std::ifstream& file_) override;
@@ -59,4 +59,4 @@ public:
 
 
 
-#endif //KOTOR_CPP_TOOLS_LIPFILE_H
+#endif //KOTOR_CPP_TOOLS_LIPSYNCFILE_H

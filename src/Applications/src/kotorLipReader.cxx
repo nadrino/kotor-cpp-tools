@@ -2,7 +2,7 @@
 // Created by Adrien Blanchet on 10/12/2023.
 //
 
-#include "LipFile.h"
+#include "LipSyncFile.h"
 #include "VersionConfig.h"
 
 #include "GenericToolbox.h"
@@ -43,7 +43,7 @@ int main(int argc, char** argv){
   // Sanity checks
   LogThrowIf(not clp.isOptionTriggered("filePath"), "No lip file provided.");
 
-  LipFile lipFile{};
+  LipSyncFile lipFile{};
 
   LogInfo << "Reading file: " << clp.getOptionVal<std::string>("filePath") << std::endl;
   lipFile.read( clp.getOptionVal<std::string>("filePath") );
