@@ -42,7 +42,6 @@ void MdlFile::readBinary(std::ifstream& file_){
 
 void MdlFile::writeJson(nlohmann::json& json_) const {
   // File Header
-  json_["fileHeader"]["unused"] = fileHeader.unused;
   json_["fileHeader"]["mdlSize"] = fileHeader.mdlSize;
   json_["fileHeader"]["mdxSize"] = fileHeader.mdxSize;
 
@@ -51,19 +50,15 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["modelHeader"]["geometryHeader"]["modelName"] = std::string(modelHeader.geometryHeader.modelName.data());
   json_["modelHeader"]["geometryHeader"]["rootNodeOffset"] = modelHeader.geometryHeader.rootNodeOffset;
   json_["modelHeader"]["geometryHeader"]["nodeCount"] = modelHeader.geometryHeader.nodeCount;
-  json_["modelHeader"]["geometryHeader"]["unknown"] = modelHeader.geometryHeader.unknown;
-  json_["modelHeader"]["geometryHeader"]["geometryType"] = modelHeader.geometryHeader.geometryType;
-  json_["modelHeader"]["geometryHeader"]["padding"] = modelHeader.geometryHeader.padding;
+  json_["modelHeader"]["geometryHeader"]["geometryType"] = modelHeader.geometryHeader.geometryType.toString();
 
   json_["modelHeader"]["modelType"] = modelHeader.modelType;
-  json_["modelHeader"]["unknown"] = modelHeader.unknown;
   json_["modelHeader"]["padding"] = modelHeader.padding;
   json_["modelHeader"]["disableFog"] = bool(modelHeader.disableFog);
   json_["modelHeader"]["childModelCount"] = modelHeader.childModelCount;
   json_["modelHeader"]["animationArrayOffset"] = modelHeader.animationArrayOffset;
   json_["modelHeader"]["animationCount"] = modelHeader.animationCount;
   json_["modelHeader"]["animationCount2"] = modelHeader.animationCount2;
-  json_["modelHeader"]["unknown2"] = modelHeader.unknown2;
   json_["modelHeader"]["boundingBoxMin"] = modelHeader.boundingBoxMin;
   json_["modelHeader"]["boundingBoxMax"] = modelHeader.boundingBoxMax;
   json_["modelHeader"]["radius"] = modelHeader.radius;

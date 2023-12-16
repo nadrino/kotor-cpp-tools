@@ -18,12 +18,20 @@
 #undef MAKE_ENUM
 
 #define MAKE_ENUM \
-  ENUM_NAME( GeometryType ) \
+  ENUM_NAME( GeometryReference ) \
   ENUM_TYPE( size_t ) \
   ENUM_ENTRY( K1,      0x0040552000413670 ) \
   ENUM_ENTRY( K1_Anim, 0x0043ece0004134f0 ) \
   ENUM_ENTRY( K2,      0x0040560000416310 ) \
   ENUM_ENTRY( K2_Anim, 0x004503b000416190 )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
+
+#define MAKE_ENUM \
+  ENUM_NAME( GeometryType ) \
+  ENUM_TYPE( unsigned char ) \
+  ENUM_ENTRY( RootNode, 0x02 ) \
+  ENUM_ENTRY( AnimationNode, 0x05 )
 #include "GenericToolbox.MakeEnum.h"
 #undef MAKE_ENUM
 
@@ -51,13 +59,13 @@ public:
   struct ModelHeader{
 
     struct GeometryHeader{
-      GeometryType functionPointer{}; // K1 = 4273776-4216096, K1 Anim = 4273392-4451552, K2 = 4285200-4216320, K2 Anim = 4284816-4522928
+      GeometryReference functionPointer{};
       std::array<char, 32> modelName{};
       unsigned int rootNodeOffset{};
       unsigned int nodeCount{};
       std::array<unsigned int, 7> unknown{};
-      unsigned char geometryType{};
-      std::array<unsigned char, 3> padding{}; // 0x02 = Root Node, 0x05 = Animation Node
+      GeometryType geometryType{};
+      std::array<unsigned char, 3> padding{};
     };
 
     GeometryHeader geometryHeader{};
