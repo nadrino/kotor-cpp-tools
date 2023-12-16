@@ -27,7 +27,9 @@
   ENUM_ENTRY( List ) \
   ENUM_ENTRY( Orientation ) \
   ENUM_ENTRY( Vector ) \
-  ENUM_ENTRY( StringReference )
+  ENUM_ENTRY( StringReference ) \
+  ENUM_ENTRY( TopLevelStruct, 0xFFFFFFFF ) \
+  ENUM_OVERFLOW( BadGffDataType, 0x0FFFFFFF )
 #include "GenericToolbox.MakeEnum.h"
 #undef MAKE_ENUM
 

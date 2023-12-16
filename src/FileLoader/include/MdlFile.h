@@ -10,12 +10,6 @@
 #include <array>
 #include <iostream>
 
-#define MAKE_ENUM \
-  ENUM_NAME( NodeType ) \
-  ENUM_ENTRY( RootNode, 0x02 ) \
-  ENUM_ENTRY( AnimationNode, 0x05 )
-#include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
 #define MAKE_ENUM \
   ENUM_NAME( GeometryReference ) \
@@ -72,7 +66,7 @@ public:
     unsigned char modelType{};
     unsigned char unknown{};
     unsigned char padding{};
-    unsigned char disableFog{}; // 0 = Fog, 1 = No Fog
+    unsigned char disableFog{};
     unsigned int childModelCount{};
     unsigned int animationArrayOffset{};
     unsigned int animationCount{};

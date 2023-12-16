@@ -46,6 +46,7 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
 void GenericFileFormat::writeJson( nlohmann::json& json_) const{
   json_["header"]["fileType"] = GenericToolbox::toString(header.fileType);
   json_["header"]["fileVersion"] = GenericToolbox::toString(header.fileVersion);
+
 //  json_["header"]["structOffset"] = header.structOffset;
 //  json_["header"]["structCount"] = header.structCount;
 //  json_["header"]["fieldOffset"] = header.fieldOffset;
