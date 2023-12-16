@@ -47,7 +47,7 @@ void MdlFile::writeJson(nlohmann::json& json_) const {
   json_["fileHeader"]["mdxSize"] = fileHeader.mdxSize;
 
   // Model Header - Size is 168 bytes, including the geometry header.
-  json_["modelHeader"]["geometryHeader"]["functionPointer"] = GeometryType::toString(modelHeader.geometryHeader.functionPointer);
+  json_["modelHeader"]["geometryHeader"]["functionPointer"] = modelHeader.geometryHeader.functionPointer.toString();
   json_["modelHeader"]["geometryHeader"]["modelName"] = std::string(modelHeader.geometryHeader.modelName.data());
   json_["modelHeader"]["geometryHeader"]["rootNodeOffset"] = modelHeader.geometryHeader.rootNodeOffset;
   json_["modelHeader"]["geometryHeader"]["nodeCount"] = modelHeader.geometryHeader.nodeCount;

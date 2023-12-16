@@ -11,12 +11,14 @@
 
 
 LoggerInit([]{
-  Logger::getUserHeader() << "[LipFile]";
+  Logger::getUserHeader() << "[LipSyncFile]";
 });
 
 
 
 void LipSyncFile::readBinary( std::ifstream& file_){
+  file_.seekg(0);
+
   GenericToolbox::fillData(file_, fileType, 4);
   fileType.pop_back(); // remove last char
 
@@ -68,7 +70,7 @@ void LipSyncFile::writeJson( nlohmann::json& json_) const{
   for( auto& keyFrame : keyFrameList ){
     json_["keyFrameList"].emplace_back();
     json_["keyFrameList"].back()["time"] = keyFrame.time;
-    json_["keyFrameList"].back()["shape"] = LipShape::toString(keyFrame.shape);
+    json_["keyFrameList"].back()["shape"] = keyFrame.shape.toString();
   }
 }
 
@@ -80,7 +82,7 @@ std::string LipSyncFile::getSummary() const{
     for( auto& keyFrame : keyFrameList ){
       ss << std::endl << "  { ";
       ss << "time(" << keyFrame.time << "), ";
-      ss << "shape(" << LipShape::toString(keyFrame.shape) << ")";
+      ss << "shape(" << keyFrame.shape.toString() << ")";
       ss << " },";
     }
     ss << std::endl << "}";

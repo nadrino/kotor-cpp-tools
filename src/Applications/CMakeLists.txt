@@ -3,6 +3,7 @@
 set( APP_SRC_LIST
     kotorLipReader
     kotorMdlReader
+    kotorGffReader
 )
 
 # Now define the frontends
@@ -14,4 +15,5 @@ endforeach()
 
 target_link_libraries( kotorLipReader KotorFileLoader )
 target_link_libraries( kotorMdlReader KotorFileLoader )
+target_link_libraries( kotorGffReader KotorFileLoader )
 

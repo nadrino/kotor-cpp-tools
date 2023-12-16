@@ -17,6 +17,7 @@
 
 #define MAKE_ENUM \
   ENUM_NAME( LipShape ) \
+  ENUM_TYPE( unsigned char ) \
   ENUM_ENTRY( EE, 0 ) ENUM_ENTRY( EH ) ENUM_ENTRY( SCHWA )   \
   ENUM_ENTRY( AH ) ENUM_ENTRY( OH ) ENUM_ENTRY( OOH )   \
   ENUM_ENTRY( Y ) ENUM_ENTRY( S_TS ) ENUM_ENTRY( F_V ) ENUM_ENTRY( N_NG )   \
@@ -51,7 +52,7 @@ public:
   struct KeyFrame{
     // 5 bytes
     float time{std::nanf("")};
-    unsigned char shape{};
+    LipShape shape{};
   };
   std::vector<KeyFrame> keyFrameList{};
 

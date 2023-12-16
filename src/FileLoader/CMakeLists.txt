@@ -2,7 +2,8 @@
 set( LIB_NAME "KotorFileLoader" )
 set( SRC_FILE_LIST
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KotorBinaryFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/LipFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LipSyncFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GenericFileFormat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MdlFile.cpp
 )
 

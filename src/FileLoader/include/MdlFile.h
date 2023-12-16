@@ -51,7 +51,7 @@ public:
   struct ModelHeader{
 
     struct GeometryHeader{
-      unsigned long functionPointer{}; // K1 = 4273776-4216096, K1 Anim = 4273392-4451552, K2 = 4285200-4216320, K2 Anim = 4284816-4522928
+      GeometryType functionPointer{}; // K1 = 4273776-4216096, K1 Anim = 4273392-4451552, K2 = 4285200-4216320, K2 Anim = 4284816-4522928
       std::array<char, 32> modelName{};
       unsigned int rootNodeOffset{};
       unsigned int nodeCount{};
