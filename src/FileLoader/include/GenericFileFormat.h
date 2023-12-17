@@ -63,36 +63,27 @@ public:
   };
   Header header{};
 
-  struct StructArray{
+  struct Struct{
     GffDataType type{};
     unsigned int dataOffset{};
     unsigned int fieldCount{};
   };
-  std::vector<StructArray> structArrayList{};
+  std::vector<Struct> structList{};
 
-  struct LabelArray{
+  struct Field{
     GffDataType type{};
     unsigned int labelIndex{};
-    unsigned int dataOffset{};
+    unsigned int data{}; // or data offset if it is an extended type
   };
-  std::vector<LabelArray> labelArrayList{};
+  std::vector<Field> fieldList{};
 
-  struct FieldDataBlock{
+  typedef std::array<char, 16> Label;
+  std::vector<Label> labelList{};
 
-  };
-  FieldDataBlock fieldDataBlock{};
+  typedef unsigned int FieldIndex;
+  std::vector<FieldIndex> fieldIndexList{};
 
-  struct FieldIndicesArray{
-
-  };
-  FieldIndicesArray fieldIndicesArray{};
-
-  struct ListIndicesArray{
-
-  };
-  ListIndicesArray listIndicesArray{};
-
-
+  static void dataToJson(nlohmann::json& json_, GffDataType type_, unsigned int data_);
 
 };
 
