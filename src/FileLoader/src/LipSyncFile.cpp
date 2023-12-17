@@ -1,5 +1,5 @@
 //
-// Created by Adrien Blanchet on 10/12/2023.
+// Created by Nadrino on 10/12/2023.
 //
 
 #include "LipSyncFile.h"

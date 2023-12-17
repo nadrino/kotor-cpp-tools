@@ -1,5 +1,5 @@
 //
-// Created by Adrien Blanchet on 14/12/2023.
+// Created by Nadrino on 14/12/2023.
 //
 
 #ifndef KOTOR_CPP_TOOLS_GENERICFILEFORMAT_H

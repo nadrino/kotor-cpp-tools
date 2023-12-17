@@ -1,5 +1,5 @@
 //
-// Created by Adrien Blanchet on 11/12/2023.
+// Created by Nadrino on 11/12/2023.
 //
 
 #ifndef KOTOR_CPP_TOOLS_MDLFILE_H
