@@ -29,7 +29,7 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   GenericToolbox::fillData(file_, header.listIndicesOffset);
   GenericToolbox::fillData(file_, header.listIndicesCount);
 
-  LogDebugIf(debug) << "header" << header << std::endl;
+  LogDebugIf(debug) << "header{" << std::endl << Logger::indent() << header << Logger::unIndent() << std::endl << "}" << std::endl;
 
   if( header.structCount.asUInt != 0 ){
     InstantiateStream guard(file_);
@@ -37,12 +37,13 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
 
     LogDebugIf(debug) << "structList{" << std::endl;
     structList.resize( header.structCount.asUInt );
+    int idx{0};
     for( auto& structObject : structList ){
-      LogScopeIndent;
       GenericToolbox::fillData(file_, structObject.type);
       GenericToolbox::fillData(file_, structObject.fieldOffset);
       GenericToolbox::fillData(file_, structObject.fieldCount);
-      LogDebugIf(debug) << structObject << std::endl;
+      LogScopeIndent;
+      LogDebugIf(debug) << "#" << idx++ << " " << structObject << std::endl;
     }
     LogDebugIf(debug) << "}" << std::endl;
   }
@@ -53,12 +54,14 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
 
     LogDebugIf(debug) << "fieldList{" << std::endl;
     fieldList.resize( header.fieldCount.asUInt );
+    int idx{0};
     for( auto& field : fieldList ){
-      LogScopeIndent;
       GenericToolbox::fillData(file_, field.type);
       GenericToolbox::fillData(file_, field.labelIndex);
       GenericToolbox::fillData(file_, field.data);
-      LogDebugIf(debug) << field << std::endl;
+
+      LogScopeIndent;
+      LogDebugIf(debug) << "#" << idx++ << " " << field << std::endl;
     }
     LogDebugIf(debug) << "}" << std::endl;
   }
@@ -67,8 +70,16 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     InstantiateStream guard(file_);
     file_.seekg( header.labelOffset.asUInt );
 
+    LogDebugIf(debug) << "labelList{" << std::endl;
     labelList.resize( header.labelCount.asUInt );
-    for( auto& label : labelList ){ GenericToolbox::fillData(file_, label); }
+    int idx{0};
+    for( auto& label : labelList ){
+      GenericToolbox::fillData(file_, label);
+
+      LogScopeIndent;
+      LogDebugIf(debug) << "#" << idx++ << " " << label.data() << std::endl;
+    }
+    LogDebugIf(debug) << "}" << std::endl;
   }
 
   if( header.fieldDataCount.asUInt != 0 ){

@@ -104,15 +104,13 @@ public:
 
     [[nodiscard]] std::string getSummary() const {
       std::stringstream ss;
-      ss << "{";
-      ss << std::endl << "  fileType(" << GenericToolbox::toString(fileType.asChar) << "), fileVersion(" << GenericToolbox::toString(fileVersion.asChar) << ")";
-      ss << std::endl << "  structOffset(" << structOffset << "), structCount(" << structCount.asUInt << ")";
-      ss << std::endl << "  fieldOffset(" << fieldOffset << "), fieldCount(" << fieldCount.asUInt << ")";
-      ss << std::endl << "  labelOffset(" << labelOffset << "), labelCount(" << labelCount.asUInt << ")";
-      ss << std::endl << "  fieldDataOffset(" << fieldDataOffset << "), fieldDataCount(" << fieldDataCount.asUInt << ")";
-      ss << std::endl << "  fieldIndicesOffset(" << fieldIndicesOffset << "), fieldIndicesCount(" << fieldIndicesCount.asUInt << ")";
-      ss << std::endl << "  listIndicesOffset(" << listIndicesOffset << "), listIndicesOffset(" << listIndicesOffset.asUInt << ")";
-      ss << std::endl << "}";
+      ss << "fileType(" << GenericToolbox::toString(fileType.asChar) << "), fileVersion(" << GenericToolbox::toString(fileVersion.asChar) << ")";
+      ss << std::endl << "structOffset(" << structOffset << "), structCount(" << structCount.asUInt << ")";
+      ss << std::endl << "fieldOffset(" << fieldOffset << "), fieldCount(" << fieldCount.asUInt << ")";
+      ss << std::endl << "labelOffset(" << labelOffset << "), labelCount(" << labelCount.asUInt << ")";
+      ss << std::endl << "fieldDataOffset(" << fieldDataOffset << "), fieldDataCount(" << fieldDataCount.asUInt << ")";
+      ss << std::endl << "fieldIndicesOffset(" << fieldIndicesOffset << "), fieldIndicesCount(" << fieldIndicesCount.asUInt << ")";
+      ss << std::endl << "listIndicesOffset(" << listIndicesOffset << "), listIndicesOffset(" << listIndicesOffset.asUInt << ")";
       return ss.str();
     }
 
