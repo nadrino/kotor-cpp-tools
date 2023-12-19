@@ -39,7 +39,7 @@ public:
   void readBinary(std::ifstream& file_) override;
 
   // overrides - json
-  void writeJson(nlohmann::json& json_) const override;
+  void writeJson(nlohmann::ordered_json& json_) const override;
 
 
   // https://kotor-modding.fandom.com/wiki/MDL_Format

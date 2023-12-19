@@ -40,7 +40,7 @@ void MdlFile::readBinary(std::ifstream& file_){
   GenericToolbox::fillData(file_, modelHeader.supermodelName);
 }
 
-void MdlFile::writeJson(nlohmann::json& json_) const {
+void MdlFile::writeJson(nlohmann::ordered_json& json_) const {
   // File Header
   json_["fileHeader"]["mdlSize"] = fileHeader.mdlSize;
   json_["fileHeader"]["mdxSize"] = fileHeader.mdxSize;

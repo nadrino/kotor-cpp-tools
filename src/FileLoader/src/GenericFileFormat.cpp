@@ -96,7 +96,7 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
 }
 
 
-void GenericFileFormat::writeJson( nlohmann::json& json_) const{
+void GenericFileFormat::writeJson( nlohmann::ordered_json& json_) const{
 
   auto& headerJson = json_["header"];
   headerJson["fileType"] = GenericToolbox::toString(header.fileType.asChar);
@@ -118,27 +118,27 @@ void GenericFileFormat::writeJson( nlohmann::json& json_) const{
   }
 
   for( auto& structObject : structList ){
-
     if( structObject.type != GffDataType::TopLevelStruct ){ continue; }
-
     auto& structJson = json_["entries"].emplace_back();
-    structJson["class"] = "struct";
-    structJson["type"] = structObject.type.toString();
-
-    for( unsigned int iField = 0 ; iField < structObject.fieldCount.asUInt ; iField++ ){
-      fieldToJson(structJson["field"].emplace_back(), this->fieldList[iField]);
-    }
-
-    if( debug ){
-      structJson["fielOffset"] = structObject.fielOffset.asUInt;
-      structJson["fieldCount"] = structObject.fieldCount.asUInt;
-    }
-
+    this->structToJson(structJson, structObject);
   }
 
 }
 
-void GenericFileFormat::fieldToJson(nlohmann::json& json_, const Field& field_) const{
+void GenericFileFormat::structToJson(nlohmann::ordered_json& json_, const Struct& struct_) const{
+  json_["class"] = "struct";
+  json_["type"] = struct_.type.toString();
+
+  for( unsigned int iField = 0 ; iField < struct_.fieldCount.asUInt ; iField++ ){
+    this->fieldToJson(json_["fields"].emplace_back(), this->fieldList[iField]);
+  }
+
+  if( debug ){
+    json_["fieldOffset"] = struct_.fielOffset.asUInt;
+    json_["fieldCount"] = struct_.fieldCount.asUInt;
+  }
+}
+void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& field_) const{
   json_["class"] = "Field";
   json_["type"] = field_.type.toString();
 
@@ -147,10 +147,10 @@ void GenericFileFormat::fieldToJson(nlohmann::json& json_, const Field& field_) 
   switch( field_.type.value ){
     // simple types
     case GffDataType::UChar:
-      json_["value"] = "0x" + GenericToolbox::toHex(*field_.data.asUChar.data());
+      json_["value"] = "0x" + GenericToolbox::toHex(field_.data.asUChar[0]);
       break;
     case GffDataType::Char:
-      json_["value"] = "0x" + GenericToolbox::toHex(*field_.data.asChar.data());
+      json_["value"] = "0x" + GenericToolbox::toHex(field_.data.asChar[0]);
       break;
     case GffDataType::UShort:
       json_["value"] = field_.data.asUShort[0];
@@ -194,10 +194,16 @@ void GenericFileFormat::fieldToJson(nlohmann::json& json_, const Field& field_) 
       value.resize(length);
       std::memcpy(&value[0], &this->fieldRawDataList[field_.data.asUInt+1], length);
       json_["value"] = value;
-    }
       break;
+    }
+    case GffDataType::Struct:
+    {
+      this->structToJson(json_["value"], this->structList[field_.data.asUInt]);
+      break;
+    }
 
     default:
+      LogError << "Unknown type: " << field_.type.toString() << std::endl;
       break;
   }
 

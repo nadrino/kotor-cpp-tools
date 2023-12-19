@@ -46,13 +46,13 @@ void LipSyncFile::writeBinary( std::ofstream &file_ ) const {
   }
 }
 
-void LipSyncFile::readJson( nlohmann::json& json_){
+void LipSyncFile::readJson( nlohmann::ordered_json& json_){
   fileType = GenericToolbox::Json::fetchValue<std::string>(json_, "fileType");
   fileVersion = GenericToolbox::Json::fetchValue<std::string>(json_, "fileVersion");
   duration = GenericToolbox::Json::fetchValue<float>(json_, "duration");
   keyFrameList.clear();
 
-  auto keyFrameListJson = GenericToolbox::Json::fetchValue<nlohmann::json>(json_, "keyFrameList");
+  auto keyFrameListJson = GenericToolbox::Json::fetchValue<nlohmann::ordered_json>(json_, "keyFrameList");
   entryCount = keyFrameListJson.size();
   keyFrameList.reserve(entryCount);
   for( auto& keyFrameJson : keyFrameListJson ){
@@ -63,7 +63,7 @@ void LipSyncFile::readJson( nlohmann::json& json_){
         );
   }
 }
-void LipSyncFile::writeJson( nlohmann::json& json_) const{
+void LipSyncFile::writeJson( nlohmann::ordered_json& json_) const{
   json_["fileType"] = fileType;
   json_["fileVersion"] = fileVersion;
   json_["duration"] = duration;

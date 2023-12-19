@@ -23,8 +23,8 @@ public:
   virtual void writeBinary(std::ofstream& file_) const {  };
 
   //  overrides: json interface
-  virtual void readJson(nlohmann::json& json_) {  };
-  virtual void writeJson(nlohmann::json& json_) const{  };
+  virtual void readJson(nlohmann::ordered_json& json_) {  };
+  virtual void writeJson(nlohmann::ordered_json& json_) const{  };
 
   [[nodiscard]] virtual std::string getSummary() const { return {}; };
 

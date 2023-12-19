@@ -66,7 +66,7 @@ public:
   void readBinary(std::ifstream& file_) override;
 
   // overrides - json
-  void writeJson(nlohmann::json& json_) const override;
+  void writeJson(nlohmann::ordered_json& json_) const override;
 
   bool debug{false};
 
@@ -112,7 +112,8 @@ public:
   typedef DataChunk FieldRawData;
   std::vector<FieldRawData> fieldRawDataList{};
 
-  void fieldToJson(nlohmann::json& json_, const Field& field_) const;
+  void structToJson(nlohmann::ordered_json& json_, const Struct& struct_) const;
+  void fieldToJson(nlohmann::ordered_json& json_, const Field& field_) const;
 
 };
 

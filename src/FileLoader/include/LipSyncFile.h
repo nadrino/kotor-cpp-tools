@@ -37,8 +37,8 @@ public:
   void writeBinary(std::ofstream& file_) const override;
 
   // overrides - json
-  void readJson(nlohmann::json& json_) override;
-  void writeJson(nlohmann::json& json_) const override;
+  void readJson(nlohmann::ordered_json& json_) override;
+  void writeJson(nlohmann::ordered_json& json_) const override;
 
   // overrides - misc
   [[nodiscard]] std::string getSummary() const override;
