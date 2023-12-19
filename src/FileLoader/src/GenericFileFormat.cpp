@@ -29,19 +29,23 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   GenericToolbox::fillData(file_, header.listIndicesOffset);
   GenericToolbox::fillData(file_, header.listIndicesCount);
 
-  if( header.structCount != 0 ){
-    structList.resize( header.structCount );
-    file_.seekg( header.structOffset );
+  if( header.structCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.structOffset.asUInt );
+
+    structList.resize( header.structCount.asUInt );
     for( auto& structObject : structList ){
       GenericToolbox::fillData(file_, structObject.type);
-      GenericToolbox::fillData(file_, structObject.dataOffset);
+      GenericToolbox::fillData(file_, structObject.fielOffset);
       GenericToolbox::fillData(file_, structObject.fieldCount);
     }
   }
 
-  if( header.fieldCount != 0 ){
-    fieldList.resize( header.fieldCount );
-    file_.seekg( header.fieldOffset );
+  if( header.fieldCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.fieldOffset.asUInt );
+
+    fieldList.resize( header.fieldCount.asUInt );
     for( auto& field : fieldList ){
       GenericToolbox::fillData(file_, field.type);
       GenericToolbox::fillData(file_, field.labelIndex);
@@ -49,86 +53,158 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     }
   }
 
-  if( header.labelCount != 0 ){
-    labelList.resize( header.labelCount );
-    file_.seekg( header.labelOffset );
-    for( auto& label : labelList ){
-      GenericToolbox::fillData(file_, label);
-    }
+  if( header.labelCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.labelOffset.asUInt );
+
+    labelList.resize( header.labelCount.asUInt );
+    for( auto& label : labelList ){ GenericToolbox::fillData(file_, label); }
   }
 
-  if( header.fieldIndicesCount != 0 ){
-    fieldIndexList.resize( header.fieldIndicesCount );
-    file_.seekg( header.fieldIndicesOffset );
-    for( auto& fieldIndex : fieldIndexList ){
-      GenericToolbox::fillData(file_, fieldIndex);
-    }
+  if( header.fieldDataCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.fieldDataOffset.asUInt );
+
+    fieldRawDataList.resize( header.fieldDataCount.asUInt );
+    for( auto& fieldData : fieldRawDataList ){ GenericToolbox::fillData(file_, fieldData); }
   }
+
+  if( header.fieldIndicesCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.fieldIndicesOffset.asUInt );
+
+    fieldIndexList.resize( header.fieldIndicesCount.asUInt );
+    for( auto& fieldIndex : fieldIndexList ){ GenericToolbox::fillData(file_, fieldIndex); }
+  }
+
+
+//  for( auto& structObject : structList ){
+//    structObject.fieldList.resize( structObject.fieldCount );
+//    for( auto& field : structObject.fieldList ){
+//      int labelIndex{};
+//
+//      InstantiateStream guard(file_);
+//      file_.seekg( header.fieldOffset + structObject.fielOffset ); // go to field section
+//      GenericToolbox::fillData(file_, field.type);
+//      GenericToolbox::fillData(file_, labelIndex);
+//      this->readData(file_, field);
+//
+//      field.label = labelList[labelIndex].data();
+//    }
+//  }
 
 }
 
 
 void GenericFileFormat::writeJson( nlohmann::json& json_) const{
-  json_["header"]["fileType"] = GenericToolbox::toString(header.fileType);
-  json_["header"]["fileVersion"] = GenericToolbox::toString(header.fileVersion);
 
-//  json_["header"]["structOffset"] = header.structOffset;
-//  json_["header"]["structCount"] = header.structCount;
-  json_["header"]["fieldOffset"] = header.fieldOffset;
-//  json_["header"]["fieldCount"] = header.fieldCount;
-//  json_["header"]["labelOffset"] = header.labelOffset;
-//  json_["header"]["labelCount"] = header.labelCount;
-//  json_["header"]["fieldDataOffset"] = header.fieldDataOffset;
-//  json_["header"]["fieldDataCount"] = header.fieldDataCount;
-//  json_["header"]["fieldIndicesOffset"] = header.fieldIndicesOffset;
-//  json_["header"]["fieldIndicesCount"] = header.fieldIndicesCount;
-//  json_["header"]["listIndicesOffset"] = header.listIndicesOffset;
-//  json_["header"]["listIndicesCount"] = header.listIndicesCount;
+  auto& headerJson = json_["header"];
+  headerJson["fileType"] = GenericToolbox::toString(header.fileType.asChar);
+  headerJson["fileVersion"] = GenericToolbox::toString(header.fileVersion.asChar);
+
+  if( debug ){
+    headerJson["structOffset"] = header.structOffset.asUInt;
+    headerJson["structCount"] = header.structCount.asUInt;
+    headerJson["fieldOffset"] = header.fieldOffset.asUInt;
+    headerJson["fieldCount"] = header.fieldCount.asUInt;
+    headerJson["labelOffset"] = header.labelOffset.asUInt;
+    headerJson["labelCount"] = header.labelCount.asUInt;
+    headerJson["fieldDataOffset"] = header.fieldDataOffset.asUInt;
+    headerJson["fieldDataCount"] = header.fieldDataCount.asUInt;
+    headerJson["fieldIndicesOffset"] = header.fieldIndicesOffset.asUInt;
+    headerJson["fieldIndicesCount"] = header.fieldIndicesCount.asUInt;
+    headerJson["listIndicesOffset"] = header.listIndicesOffset.asUInt;
+    headerJson["listIndicesCount"] = header.listIndicesCount.asUInt;
+  }
 
   for( auto& structObject : structList ){
-    auto& structJson = json_["structList"].emplace_back();
 
-    structJson["structType"] = structObject.type.toString();
-//    structJson["dataOffset"] = structObject.dataOffset;
-//    structJson["fieldCount"] = structObject.fieldCount;
+    if( structObject.type != GffDataType::TopLevelStruct ){ continue; }
 
-    unsigned int offSetIndex = structObject.dataOffset/4;
-    for( unsigned int iField = 0 ; iField < structObject.fieldCount ; iField++ ){
-      auto& fieldJson = structJson["fieldList"].emplace_back();
-      fieldJson["type"] = fieldList[offSetIndex + iField].type.toString();
-//      fieldJson["labelIndex"] = fieldList[offSetIndex + iField].labelIndex;
-      fieldJson["label"] = std::string(labelList[fieldList[offSetIndex + iField].labelIndex].data());
-      dataToJson(fieldJson["data"], fieldList[offSetIndex + iField].type, fieldList[offSetIndex + iField].data);
+    auto& structJson = json_["entries"].emplace_back();
+    structJson["class"] = "struct";
+    structJson["type"] = structObject.type.toString();
+
+    for( unsigned int iField = 0 ; iField < structObject.fieldCount.asUInt ; iField++ ){
+      fieldToJson(structJson["field"].emplace_back(), this->fieldList[iField]);
+    }
+
+    if( debug ){
+      structJson["fielOffset"] = structObject.fielOffset.asUInt;
+      structJson["fieldCount"] = structObject.fieldCount.asUInt;
     }
 
   }
 
-//  for( auto& field : fieldList ){
-//    auto& element = json_["fieldList"].emplace_back();
-//    element["type"] = field.type.toString();
-//    element["labelIndex"] = field.labelIndex;
-//    element["data"] = field.data;
-//  }
-
-//  for( auto& label : labelList ){
-//    json_["labelList"].emplace_back(std::string(label.data()));
-//  }
-
-//  for( auto& fieldIndex : fieldIndexList ){
-//    json_["fieldIndexList"].emplace_back( fieldIndex );
-//  }
-
 }
 
-void GenericFileFormat::dataToJson(nlohmann::json& json_, GffDataType type_, unsigned int data_){
+void GenericFileFormat::fieldToJson(nlohmann::json& json_, const Field& field_) const{
+  json_["class"] = "Field";
+  json_["type"] = field_.type.toString();
 
-  if     ( type_ == GffDataType::UChar  ){ json_ = *((unsigned char*) (&data_)); }
-  else if( type_ == GffDataType::Char   ){ json_ = *((char*) (&data_)); }
-  else if( type_ == GffDataType::UShort ){ json_ = *((unsigned short*) (&data_)); }
-  else if( type_ == GffDataType::Short  ){ json_ = *((short*) (&data_)); }
-  else if( type_ == GffDataType::UInt   ){ json_ = *((unsigned int*) (&data_)); }
-  else if( type_ == GffDataType::Int    ){ json_ = *((int*) (&data_)); }
-  else if( type_ == GffDataType::Float  ){ json_ = *((float*) (&data_)); }
-  else                                   { json_ = data_; }
+  json_["label"] = std::string(this->labelList[field_.labelIndex.asUInt].data());
 
+  switch( field_.type.value ){
+    // simple types
+    case GffDataType::UChar:
+      json_["value"] = "0x" + GenericToolbox::toHex(*field_.data.asUChar.data());
+      break;
+    case GffDataType::Char:
+      json_["value"] = "0x" + GenericToolbox::toHex(*field_.data.asChar.data());
+      break;
+    case GffDataType::UShort:
+      json_["value"] = field_.data.asUShort[0];
+      break;
+    case GffDataType::Short:
+      json_["value"] = field_.data.asShort[0];
+      break;
+    case GffDataType::UInt:
+      json_["value"] = field_.data.asUInt;
+      break;
+    case GffDataType::Int:
+      json_["value"] = field_.data.asInt;
+      break;
+    case GffDataType::Float:
+      json_["value"] = field_.data.asFloat;
+      break;
+
+    // extended
+    case GffDataType::ULong:
+    {
+      auto value{*( reinterpret_cast<const unsigned long*>(&this->fieldRawDataList[field_.data.asUInt]) )};
+      json_["value"] = value;
+      break;
+    }
+    case GffDataType::Long:
+    {
+      auto value{*( reinterpret_cast<const long*>(&this->fieldRawDataList[field_.data.asUInt]) )};
+      json_["value"] = value;
+      break;
+    }
+    case GffDataType::Double:
+    {
+      auto value{*( reinterpret_cast<const double*>(&this->fieldRawDataList[field_.data.asUInt]) )};
+      json_["value"] = value;
+      break;
+    }
+    case GffDataType::ExoString:
+    {
+      auto length = this->fieldRawDataList[field_.data.asUInt].asUInt;
+      std::string value;
+      value.resize(length);
+      std::memcpy(&value[0], &this->fieldRawDataList[field_.data.asUInt+1], length);
+      json_["value"] = value;
+    }
+      break;
+
+    default:
+      break;
+  }
+
+
+  if( debug ){
+    // debug
+    json_["typeIndex"] = field_.type.value;
+    json_["labelIndex"] = field_.labelIndex.asUInt;
+  }
 }
