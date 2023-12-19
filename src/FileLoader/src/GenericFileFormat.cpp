@@ -29,28 +29,38 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   GenericToolbox::fillData(file_, header.listIndicesOffset);
   GenericToolbox::fillData(file_, header.listIndicesCount);
 
+  LogDebugIf(debug) << "header" << header << std::endl;
+
   if( header.structCount.asUInt != 0 ){
     InstantiateStream guard(file_);
     file_.seekg( header.structOffset.asUInt );
 
+    LogDebugIf(debug) << "structList{" << std::endl;
     structList.resize( header.structCount.asUInt );
     for( auto& structObject : structList ){
+      LogScopeIndent;
       GenericToolbox::fillData(file_, structObject.type);
-      GenericToolbox::fillData(file_, structObject.fielOffset);
+      GenericToolbox::fillData(file_, structObject.fieldOffset);
       GenericToolbox::fillData(file_, structObject.fieldCount);
+      LogDebugIf(debug) << structObject << std::endl;
     }
+    LogDebugIf(debug) << "}" << std::endl;
   }
 
   if( header.fieldCount.asUInt != 0 ){
     InstantiateStream guard(file_);
     file_.seekg( header.fieldOffset.asUInt );
 
+    LogDebugIf(debug) << "fieldList{" << std::endl;
     fieldList.resize( header.fieldCount.asUInt );
     for( auto& field : fieldList ){
+      LogScopeIndent;
       GenericToolbox::fillData(file_, field.type);
       GenericToolbox::fillData(file_, field.labelIndex);
       GenericToolbox::fillData(file_, field.data);
+      LogDebugIf(debug) << field << std::endl;
     }
+    LogDebugIf(debug) << "}" << std::endl;
   }
 
   if( header.labelCount.asUInt != 0 ){
@@ -74,24 +84,22 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     file_.seekg( header.fieldIndicesOffset.asUInt );
 
     fieldIndexList.resize( header.fieldIndicesCount.asUInt );
-    for( auto& fieldIndex : fieldIndexList ){ GenericToolbox::fillData(file_, fieldIndex); }
+    for( auto& fieldIndex : fieldIndexList ){
+      GenericToolbox::fillData(file_, fieldIndex);
+      LogTraceIf(fieldIndex.asUInt != 0) << GET_VAR_NAME_VALUE(fieldIndex.asUInt) << std::endl;
+    }
   }
 
+  if( header.listIndicesCount.asUInt != 0 ){
+    InstantiateStream guard(file_);
+    file_.seekg( header.listIndicesOffset.asUInt );
 
-//  for( auto& structObject : structList ){
-//    structObject.fieldList.resize( structObject.fieldCount );
-//    for( auto& field : structObject.fieldList ){
-//      int labelIndex{};
-//
-//      InstantiateStream guard(file_);
-//      file_.seekg( header.fieldOffset + structObject.fielOffset ); // go to field section
-//      GenericToolbox::fillData(file_, field.type);
-//      GenericToolbox::fillData(file_, labelIndex);
-//      this->readData(file_, field);
-//
-//      field.label = labelList[labelIndex].data();
-//    }
-//  }
+    listIndexList.resize( header.listIndicesCount.asUInt );
+    for( auto& listIndex: listIndexList ){
+      GenericToolbox::fillData(file_, listIndex);
+      LogTrace << GET_VAR_NAME_VALUE(listIndex.asUInt) << std::endl;
+    }
+  }
 
 }
 
@@ -134,7 +142,7 @@ void GenericFileFormat::structToJson(nlohmann::ordered_json& json_, const Struct
   }
 
   if( debug ){
-    json_["fieldOffset"] = struct_.fielOffset.asUInt;
+    json_["fieldOffset"] = struct_.fieldOffset.asUInt;
     json_["fieldCount"] = struct_.fieldCount.asUInt;
   }
 }
@@ -199,6 +207,20 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     case GffDataType::Struct:
     {
       this->structToJson(json_["value"], this->structList[field_.data.asUInt]);
+      break;
+    }
+    case GffDataType::List:
+    {
+      LogDebug << GET_VAR_NAME_VALUE(field_.data.asUInt) << std::endl;
+      LogDebug << GET_VAR_NAME_VALUE(this->listIndexList[field_.data.asUInt].asUInt) << std::endl;
+      auto listSize = this->listIndexList[field_.data.asUInt].asUInt;
+
+      for( unsigned int iEntry = 0 ; iEntry < listSize ; iEntry++ ){
+        auto structIndex = this->listIndexList[field_.data.asUInt + 1 + iEntry].asUInt;
+        LogDebug << GET_VAR_NAME_VALUE(structIndex) << std::endl;
+      }
+
+
       break;
     }
 

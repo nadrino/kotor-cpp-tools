@@ -7,8 +7,12 @@
 
 #include "KotorBinaryFile.h"
 
+#include "GenericToolbox.h"
+
 #include <array>
 #include <vector>
+#include <sstream>
+#include <string>
 
 
 #define MAKE_ENUM \
@@ -55,6 +59,11 @@ union DataChunk{
   unsigned int asUInt{0x0};
   int asInt;
   float asFloat;
+
+  friend std::ostream& operator<< (std::ostream& stream, const DataChunk& this_){
+    stream << "0x" << GenericToolbox::toHex(this_.asUInt);
+    return stream;
+  }
 };
 
 class GenericFileFormat : public KotorBinaryFile {
@@ -68,31 +77,61 @@ public:
   // overrides - json
   void writeJson(nlohmann::ordered_json& json_) const override;
 
-  bool debug{false};
+  bool debug{true};
 
   // https://kotor-modding.fandom.com/wiki/GFF_Format
   struct Header{
     DataChunk fileType{};
     DataChunk fileVersion{};
+
     DataChunk structOffset{};
-    DataChunk structCount{};
+    DataChunk structCount{}; // 3 bytes each
+
     DataChunk fieldOffset{};
-    DataChunk fieldCount{};
+    DataChunk fieldCount{}; // 3 bytes each
+
     DataChunk labelOffset{};
     DataChunk labelCount{}; // 16 bytes each
+
     DataChunk fieldDataOffset{};
     DataChunk fieldDataCount{}; // number of bytes
+
     DataChunk fieldIndicesOffset{};
-    DataChunk fieldIndicesCount{};
+    DataChunk fieldIndicesCount{}; // 4 bytes each
+
     DataChunk listIndicesOffset{};
-    DataChunk listIndicesCount{};
+    DataChunk listIndicesCount{}; // 4 bytes each
+
+    [[nodiscard]] std::string getSummary() const {
+      std::stringstream ss;
+      ss << "{";
+      ss << std::endl << "  fileType(" << GenericToolbox::toString(fileType.asChar) << "), fileVersion(" << GenericToolbox::toString(fileVersion.asChar) << ")";
+      ss << std::endl << "  structOffset(" << structOffset << "), structCount(" << structCount.asUInt << ")";
+      ss << std::endl << "  fieldOffset(" << fieldOffset << "), fieldCount(" << fieldCount.asUInt << ")";
+      ss << std::endl << "  labelOffset(" << labelOffset << "), labelCount(" << labelCount.asUInt << ")";
+      ss << std::endl << "  fieldDataOffset(" << fieldDataOffset << "), fieldDataCount(" << fieldDataCount.asUInt << ")";
+      ss << std::endl << "  fieldIndicesOffset(" << fieldIndicesOffset << "), fieldIndicesCount(" << fieldIndicesCount.asUInt << ")";
+      ss << std::endl << "  listIndicesOffset(" << listIndicesOffset << "), listIndicesOffset(" << listIndicesOffset.asUInt << ")";
+      ss << std::endl << "}";
+      return ss.str();
+    }
+
+    friend std::ostream& operator<< (std::ostream& stream, const Header& this_){ stream << this_.getSummary(); return stream; }
+
   };
   Header header{};
 
   struct Struct{
     GffDataType type{};
+    DataChunk fieldOffset{};
     DataChunk fieldCount{};
-    DataChunk fielOffset{};
+
+    [[nodiscard]] std::string getSummary() const {
+      std::stringstream ss;
+      ss << "Struct{ type(" << type.toString() << "), fieldOffset(" << fieldOffset << "), fieldCount(" << fieldCount.asUInt << ") }";
+      return ss.str();
+    }
+    friend std::ostream& operator<< (std::ostream& stream, const Struct& this_){ stream << this_.getSummary(); return stream; }
   };
   std::vector<Struct> structList{};
 
@@ -100,6 +139,13 @@ public:
     GffDataType type{};
     DataChunk labelIndex{};
     DataChunk data{}; // or data offset if it is an extended type
+
+    [[nodiscard]] std::string getSummary() const {
+      std::stringstream ss;
+      ss << "Field{ type(" << type.toString() << "), labelIndex(" << labelIndex.asUInt << "), data(" << data << ") }";
+      return ss.str();
+    }
+    friend std::ostream& operator<< (std::ostream& stream, const Field& this_){ stream << this_.getSummary(); return stream; }
   };
   std::vector<Field> fieldList{};
 
@@ -108,6 +154,9 @@ public:
 
   typedef DataChunk FieldIndex;
   std::vector<FieldIndex> fieldIndexList{};
+
+  typedef DataChunk ListIndex;
+  std::vector<ListIndex> listIndexList{};
 
   typedef DataChunk FieldRawData;
   std::vector<FieldRawData> fieldRawDataList{};
