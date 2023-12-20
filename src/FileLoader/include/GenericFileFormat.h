@@ -153,7 +153,7 @@ public:
   typedef unsigned char FieldIndex;
   std::vector<FieldIndex> fieldIndexList{};
 
-  typedef DataChunk ListIndex;
+  typedef unsigned char ListIndex;
   std::vector<ListIndex> listIndexList{};
 
   typedef unsigned char FieldRawData;

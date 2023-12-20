@@ -97,7 +97,9 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     LogThrowIf(file_.tellg() == -1, "Can't reach section of file: " << GET_VAR_NAME_VALUE(header.fieldIndicesOffset));
 
     fieldIndexList.resize( header.fieldIndicesCount.asUInt );
-    for( auto& fieldIndex : fieldIndexList ){ GenericToolbox::fillData(file_, fieldIndex); }
+    for( auto& fieldIndex : fieldIndexList ){
+      GenericToolbox::fillData(file_, fieldIndex);
+    }
   }
 
   if( header.listIndicesCount.asUInt != 0 ){
@@ -106,7 +108,9 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     LogThrowIf(file_.tellg() == -1, "Can't reach section of file: " << GET_VAR_NAME_VALUE(header.listIndicesOffset));
 
     listIndexList.resize( header.listIndicesCount.asUInt );
-    for( auto& listIndex: listIndexList ){ GenericToolbox::fillData(file_, listIndex); }
+    for( auto& listIndex: listIndexList ){
+      GenericToolbox::fillData(file_, listIndex);
+    }
   }
 
 }
@@ -150,9 +154,13 @@ void GenericFileFormat::structToJson(nlohmann::ordered_json& json_, const Struct
   unsigned int byteOffset{struct_.fieldOffset.asUInt};
 
   for( unsigned int iField = 0 ; iField < struct_.fieldCount.asUInt ; iField++ ){
-    auto fieldIndex = *( reinterpret_cast<const DataChunk*>(&this->fieldIndexList.at(byteOffset)) );
-    byteOffset += sizeof(DataChunk);
-    const Field* fieldPtr = &this->fieldList[fieldIndex.asUInt];
+//    LogDebug << GET_VAR_NAME_VALUE(fieldIndexList.size()) << std::endl;
+//    LogDebug << GET_VAR_NAME_VALUE(byteOffset + iField*sizeof(DataChunk)) << std::endl;
+    auto fieldIndex = *( reinterpret_cast<const DataChunk*>(
+        &this->fieldIndexList.at(byteOffset + iField*sizeof(DataChunk)))
+    );
+//    LogDebug << GET_VAR_NAME_VALUE(fieldIndex) << std::endl;
+    const Field* fieldPtr = &this->fieldList.at(fieldIndex.asUInt);
     this->fieldToJson(json_["fields"].emplace_back(), *fieldPtr);
   }
 
@@ -242,10 +250,12 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     }
     case GffDataType::List:
     {
-      auto listSize = this->listIndexList[field_.data.asUInt].asUInt;
-      for( unsigned int iEntry = 0 ; iEntry < listSize ; iEntry++ ){
-        auto structIndex = this->listIndexList[field_.data.asUInt + 1 + iEntry].asUInt;
-        this->structToJson(json_["value"].emplace_back(), this->structList[structIndex]);
+      unsigned int byteOffset{field_.data.asUInt};
+      auto length = *(reinterpret_cast<const DataChunk*>(&this->listIndexList[byteOffset]));
+      byteOffset += sizeof(length);
+      for( unsigned int iEntry = 0 ; iEntry < length.asUInt ; iEntry++ ){
+        auto structIndex = *(reinterpret_cast<const DataChunk*>(&this->listIndexList[byteOffset + iEntry*sizeof(DataChunk)]));
+        this->structToJson(json_["value"].emplace_back(), this->structList[structIndex.asUInt]);
       }
       break;
     }
@@ -261,7 +271,7 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     }
 
     default:
-      LogError << "Unknown type: " << field_.type.toString() << std::endl;
+      LogAlertOnce << "Unknown type: " << field_.type.toString() << std::endl;
       break;
   }
 
