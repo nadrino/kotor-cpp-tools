@@ -55,7 +55,7 @@ if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
   add_definitions( -D LOGGER_PREFIX_FORMAT="\\\"{TIME} {USER_HEADER} {FILELINE}"\\\" )
 else()
   cmessage( STATUS "Logger set in release mode." )
-  add_definitions( -D LOGGER_PREFIX_FORMAT="\\\"{TIME} {USER_HEADER}"\\\" )
+  add_definitions( -D LOGGER_PREFIX_FORMAT="\\\"{USER_HEADER}"\\\" )
 endif()
 
 add_definitions( -D LOGGER_ENABLE_COLORS=1 )

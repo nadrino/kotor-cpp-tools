@@ -52,8 +52,8 @@ int main(int argc, char** argv){
 
   if( clp.isOptionTriggered("output") ){
     auto outPath{clp.getOptionVal<std::string>("output")};
-    LogWarning << "Output file path: " << outPath << std::endl;
     gffFile.write( clp.getOptionVal<std::string>("output") );
+    LogWarning << "Output file path: " << outPath << std::endl;
   }
 
 }

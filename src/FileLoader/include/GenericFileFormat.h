@@ -77,7 +77,7 @@ public:
   // overrides - json
   void writeJson(nlohmann::ordered_json& json_) const override;
 
-  bool debug{true};
+  bool debug{false};
 
   // https://kotor-modding.fandom.com/wiki/GFF_Format
   struct Header{
@@ -97,10 +97,10 @@ public:
     DataChunk fieldDataCount{}; // number of bytes
 
     DataChunk fieldIndicesOffset{};
-    DataChunk fieldIndicesCount{}; // 4 bytes each
+    DataChunk fieldIndicesCount{}; // number of bytes (/4 for number of obj)
 
     DataChunk listIndicesOffset{};
-    DataChunk listIndicesCount{}; // 4 bytes each
+    DataChunk listIndicesCount{}; // number of bytes (/4 for number of obj)
 
     [[nodiscard]] std::string getSummary() const {
       std::stringstream ss;
@@ -121,8 +121,8 @@ public:
 
   struct Struct{
     GffDataType type{};
-    DataChunk fieldOffset{};
-    DataChunk fieldCount{};
+    DataChunk fieldOffset{}; // nb of bytes
+    DataChunk fieldCount{}; // nb of fields (3*4 bytes)
 
     [[nodiscard]] std::string getSummary() const {
       std::stringstream ss;
@@ -150,13 +150,13 @@ public:
   typedef std::array<char, 16> Label;
   std::vector<Label> labelList{};
 
-  typedef DataChunk FieldIndex;
+  typedef unsigned char FieldIndex;
   std::vector<FieldIndex> fieldIndexList{};
 
   typedef DataChunk ListIndex;
   std::vector<ListIndex> listIndexList{};
 
-  typedef DataChunk FieldRawData;
+  typedef unsigned char FieldRawData;
   std::vector<FieldRawData> fieldRawDataList{};
 
   void structToJson(nlohmann::ordered_json& json_, const Struct& struct_) const;
