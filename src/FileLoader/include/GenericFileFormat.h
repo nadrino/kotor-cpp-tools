@@ -30,12 +30,29 @@
   ENUM_ENTRY( Struct ) \
   ENUM_ENTRY( List ) \
   ENUM_ENTRY( Orientation ) \
-  ENUM_ENTRY( Vector ) \
+  ENUM_ENTRY( Position ) \
   ENUM_ENTRY( StringReference ) \
   ENUM_ENTRY( TopLevelStruct, 0xFFFFFFFF ) \
   ENUM_OVERFLOW( BadGffDataType, 0x0FFFFFFF )
 #include "GenericToolbox.MakeEnum.h"
 #undef MAKE_ENUM
+
+#define MAKE_ENUM \
+  ENUM_NAME( LanguageId ) \
+  ENUM_TYPE( unsigned int ) \
+  ENUM_ENTRY( English, 0 )\
+  ENUM_ENTRY( French ) \
+  ENUM_ENTRY( German ) \
+  ENUM_ENTRY( Italian ) \
+  ENUM_ENTRY( Spanish ) \
+  ENUM_ENTRY( Polish ) \
+  ENUM_ENTRY( Korean, 128 ) \
+  ENUM_ENTRY( ChineseTraditional, 129 ) \
+  ENUM_ENTRY( ChineseSimplified, 130 ) \
+  ENUM_ENTRY( Japanese, 131 )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
+
 
 
 class InstantiateStream{
@@ -158,6 +175,13 @@ public:
 
   typedef unsigned char FieldRawData;
   std::vector<FieldRawData> fieldRawDataList{};
+
+  struct LocalizedString{
+    unsigned int id{};
+    unsigned int count{};
+    std::string str{};
+  };
+
 
   void structToJson(nlohmann::ordered_json& json_, const Struct& struct_) const;
   void fieldToJson(nlohmann::ordered_json& json_, const Field& field_) const;
