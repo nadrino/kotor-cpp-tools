@@ -248,18 +248,20 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
       LocalizedString ls{};
 
       auto byteOffset{field_.data.asUInt};
+
+
       auto length = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
-      json_["value"]["length"] = length;
+      if( debug ){ json_["value"]["length"] = length; }
       byteOffset += sizeof(length);
 
       if( length != 0 ){
         ls.id = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
-        json_["value"]["id"] = ls.id;
+        json_["value"]["strref"] = ls.id;
         byteOffset += sizeof(ls.id);
 
         ls.count = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
         byteOffset += sizeof(ls.count);
-        json_["value"]["count"] = ls.count;
+        if( debug ){ json_["value"]["count"] = ls.count; }
 
         for( unsigned int iStr = 0 ; iStr < ls.count ; iStr++ ){
 
@@ -268,7 +270,7 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
           strJson["language"] = l.toString();
           byteOffset += sizeof(l);
           unsigned int strLength{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
-          strJson["length"] = strLength;
+          if( debug ){ strJson["length"] = strLength; }
           byteOffset += sizeof(strLength);
           byteOffset += strLength;
           std::string value; value.resize(strLength);

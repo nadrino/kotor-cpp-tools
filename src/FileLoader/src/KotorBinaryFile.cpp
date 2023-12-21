@@ -14,7 +14,7 @@ LoggerInit([]{
 
 
 void KotorBinaryFile::read(const std::string& filePath_){
-  LogDebug << __METHOD_NAME__ << std::endl;
+  LogInfo << __METHOD_NAME__ << std::endl;
   if( GenericToolbox::doesFilePathHasExtension(filePath_, "json") ){
     auto json = GenericToolbox::Json::readConfigFile<nlohmann::ordered_json>( filePath_ );
     this->readJson( json );
