@@ -247,10 +247,11 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     {
       LocalizedString ls{};
 
-      unsigned int byteOffset{field_.data.asUInt};
-      auto length = this->fieldRawDataList[byteOffset];
+      auto byteOffset{field_.data.asUInt};
+      auto length = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
       json_["value"]["length"] = length;
       byteOffset += sizeof(length);
+
       if( length != 0 ){
         ls.id = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
         json_["value"]["id"] = ls.id;
@@ -260,18 +261,20 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
         byteOffset += sizeof(ls.count);
         json_["value"]["count"] = ls.count;
 
-//        for( unsigned int iStr = 0 ; iStr < ls.count ; iStr++ ){
-//          auto& strJson = json_["value"]["str"].emplace_back();
-//          LanguageId l{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
-//          strJson["language"] = l.toString();
-//          byteOffset += sizeof(l);
-//          unsigned int strLength{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
-//          strJson["length"] = strLength;
-//          byteOffset += sizeof(strLength);
-//          std::string value; value.resize(strLength);
-//          std::memcpy(&value[0], &this->fieldRawDataList[byteOffset], strLength);
-//          json_["value"] = value;
-//        }
+        for( unsigned int iStr = 0 ; iStr < ls.count ; iStr++ ){
+
+          auto& strJson = json_["value"]["str"].emplace_back();
+          LanguageId l{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
+          strJson["language"] = l.toString();
+          byteOffset += sizeof(l);
+          unsigned int strLength{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
+          strJson["length"] = strLength;
+          byteOffset += sizeof(strLength);
+          byteOffset += strLength;
+          std::string value; value.resize(strLength);
+          std::memcpy(&value[0], &this->fieldRawDataList[byteOffset], strLength);
+          json_["value"] = value;
+        }
       }
       break;
     }
