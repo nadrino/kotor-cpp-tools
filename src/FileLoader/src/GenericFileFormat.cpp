@@ -325,7 +325,7 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     }
 
     default:
-      LogAlertOnce << "Unknown type: " << field_.type.toString() << std::endl;
+      LogThrow("Unknown field type: " << field_.type.toString());
       break;
   }
 
