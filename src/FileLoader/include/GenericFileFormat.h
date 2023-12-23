@@ -2,8 +2,10 @@
 // Created by Nadrino on 14/12/2023.
 //
 
-#ifndef KOTOR_CPP_TOOLS_GENERICFILEFORMAT_H
-#define KOTOR_CPP_TOOLS_GENERICFILEFORMAT_H
+#ifndef KOTOR_CPP_TOOLS_GENERIC_FILE_FORMAT_H
+#define KOTOR_CPP_TOOLS_GENERIC_FILE_FORMAT_H
+
+#include "GenericToolbox.Stream.h"
 
 #include "KotorBinaryFile.h"
 
@@ -13,6 +15,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <cstdint>
 
 
 #define MAKE_ENUM \
@@ -54,19 +57,6 @@
 #undef MAKE_ENUM
 
 
-
-class InstantiateStream{
-
-public:
-  InstantiateStream(std::istream& stream_): _stream_(&stream_), _state_(stream_.tellg()){}
-  ~InstantiateStream(){ _stream_->seekg( _state_ ); }
-
-private:
-  std::istream* _stream_{nullptr};
-  std::istream::pos_type _state_{};
-
-};
-
 union DataChunk{
   // 32 bits data chunk
   std::array<unsigned char, 4> asUChar;
@@ -94,6 +84,8 @@ public:
   // overrides - json
   void writeJson(nlohmann::ordered_json& json_) const override;
 
+
+private:
   bool debug{false};
 
   // https://kotor-modding.fandom.com/wiki/GFF_Format
@@ -167,21 +159,9 @@ public:
   typedef std::array<char, 16> Label;
   std::vector<Label> labelList{};
 
-  typedef unsigned char FieldIndex;
-  std::vector<FieldIndex> fieldIndexList{};
-
-  typedef unsigned char ListIndex;
-  std::vector<ListIndex> listIndexList{};
-
-  typedef unsigned char FieldRawData;
-  std::vector<FieldRawData> fieldRawDataList{};
-
-  struct LocalizedString{
-    unsigned int id{};
-    unsigned int count{};
-    std::string str{};
-  };
-
+  GenericToolbox::DataStream fieldIndexData{};
+  GenericToolbox::DataStream listIndexData{};
+  GenericToolbox::DataStream fieldExtendedData{};
 
   void structToJson(nlohmann::ordered_json& json_, const Struct& struct_) const;
   void fieldToJson(nlohmann::ordered_json& json_, const Field& field_) const;
@@ -189,4 +169,4 @@ public:
 };
 
 
-#endif //KOTOR_CPP_TOOLS_GENERICFILEFORMAT_H
+#endif // KOTOR_CPP_TOOLS_GENERIC_FILE_FORMAT_H

@@ -32,7 +32,6 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   LogDebugIf(debug) << "header{" << std::endl << Logger::indent() << header << Logger::unIndent() << std::endl << "}" << std::endl;
 
   if( header.structCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
     file_.seekg( header.structOffset.asUInt );
 
     LogDebugIf(debug) << "structList{" << std::endl;
@@ -49,7 +48,6 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   }
 
   if( header.fieldCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
     file_.seekg( header.fieldOffset.asUInt );
 
     LogDebugIf(debug) << "fieldList{" << std::endl;
@@ -67,7 +65,6 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
   }
 
   if( header.labelCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
     file_.seekg( header.labelOffset.asUInt );
 
     LogDebugIf(debug) << "labelList{" << std::endl;
@@ -82,36 +79,9 @@ void GenericFileFormat::readBinary( std::ifstream& file_){
     LogDebugIf(debug) << "}" << std::endl;
   }
 
-  if( header.fieldDataCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
-    file_.seekg( header.fieldDataOffset.asUInt );
-    LogThrowIf(file_.tellg() == -1, "Can't reach section of file: " << GET_VAR_NAME_VALUE(header.fieldDataOffset));
-
-    fieldRawDataList.resize( header.fieldDataCount.asUInt );
-    for( auto& fieldData : fieldRawDataList ){ GenericToolbox::fillData(file_, fieldData); }
-  }
-
-  if( header.fieldIndicesCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
-    file_.seekg( header.fieldIndicesOffset.asUInt );
-    LogThrowIf(file_.tellg() == -1, "Can't reach section of file: " << GET_VAR_NAME_VALUE(header.fieldIndicesOffset));
-
-    fieldIndexList.resize( header.fieldIndicesCount.asUInt );
-    for( auto& fieldIndex : fieldIndexList ){
-      GenericToolbox::fillData(file_, fieldIndex);
-    }
-  }
-
-  if( header.listIndicesCount.asUInt != 0 ){
-    InstantiateStream guard(file_);
-    file_.seekg( header.listIndicesOffset.asUInt );
-    LogThrowIf(file_.tellg() == -1, "Can't reach section of file: " << GET_VAR_NAME_VALUE(header.listIndicesOffset));
-
-    listIndexList.resize( header.listIndicesCount.asUInt );
-    for( auto& listIndex: listIndexList ){
-      GenericToolbox::fillData(file_, listIndex);
-    }
-  }
+  fieldExtendedData.load(file_, header.fieldDataOffset.asUInt, header.fieldDataCount.asUInt);
+  fieldIndexData.load(file_, header.fieldIndicesOffset.asUInt, header.fieldIndicesCount.asUInt);
+  listIndexData.load(file_, header.listIndicesOffset.asUInt, header.listIndicesCount.asUInt);
 
 }
 
@@ -156,11 +126,13 @@ void GenericFileFormat::structToJson(nlohmann::ordered_json& json_, const Struct
   for( unsigned int iField = 0 ; iField < struct_.fieldCount.asUInt ; iField++ ){
 //    LogDebug << GET_VAR_NAME_VALUE(fieldIndexList.size()) << std::endl;
 //    LogDebug << GET_VAR_NAME_VALUE(byteOffset + iField*sizeof(DataChunk)) << std::endl;
-    auto fieldIndex = *( reinterpret_cast<const DataChunk*>(
-        &this->fieldIndexList.at(byteOffset + iField*sizeof(DataChunk)))
-    );
+//    auto fieldIndex = *( reinterpret_cast<const DataChunk*>(
+//        &this->fieldIndexList.at(byteOffset + iField*sizeof(DataChunk)))
+//    );
 //    LogDebug << GET_VAR_NAME_VALUE(fieldIndex) << std::endl;
-    const Field* fieldPtr = &this->fieldList.at(fieldIndex.asUInt);
+    const Field* fieldPtr = &this->fieldList.at(
+        fieldIndexData.readAt<uint32_t>(byteOffset + iField*sizeof(uint32_t))
+    );
     this->fieldToJson(json_["fields"].emplace_back(), *fieldPtr);
   }
 
@@ -200,86 +172,54 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
 
     // extended
     case GffDataType::ULong:
-    {
-      auto value{*( reinterpret_cast<const unsigned long*>(&this->fieldRawDataList[field_.data.asUInt]) )};
-      json_["value"] = value;
+      json_["value"] = fieldExtendedData.readAt<unsigned long>(field_.data.asUInt);
       break;
-    }
     case GffDataType::Long:
-    {
-      auto value{*( reinterpret_cast<const long*>(&this->fieldRawDataList[field_.data.asUInt]) )};
-      json_["value"] = value;
+      json_["value"] = fieldExtendedData.readAt<long>(field_.data.asUInt);
       break;
-    }
     case GffDataType::Double:
-    {
-      auto value{*( reinterpret_cast<const double*>(&this->fieldRawDataList[field_.data.asUInt]) )};
-      json_["value"] = value;
+      json_["value"] = fieldExtendedData.readAt<double>(field_.data.asUInt);
       break;
-    }
+
     case GffDataType::ExoString:
     {
-      unsigned int byteOffset{field_.data.asUInt};
-      // 4 bytes size
-      auto length = *(reinterpret_cast<const DataChunk*>(&this->fieldRawDataList[byteOffset]));
-      byteOffset += sizeof(length);
-      if( length.asUInt != 0 ){
-        std::string value; value.resize(length.asUInt);
-        std::memcpy(&value[0], &this->fieldRawDataList[byteOffset], length.asUInt);
-        json_["value"] = value;
-      }
+      fieldExtendedData.setPos( field_.data.asUInt );
+      auto length = fieldExtendedData.read<uint32_t>();
+      if( length != 0 ){ json_["value"] = fieldExtendedData.readString(length); }
+      if( debug ){ json_["value"]["length"] = length; }
       break;
     }
+
     case GffDataType::ResourceReference:
     {
-      unsigned int byteOffset{field_.data.asUInt};
-      // one byte size - 255 as maximum
-      auto length = this->fieldRawDataList[byteOffset];
-      byteOffset += sizeof(length);
-      if( length != 0 ){
-        std::string value; value.resize(length);
-        std::memcpy(&value[0], &this->fieldRawDataList[byteOffset], length);
-        json_["value"] = value;
-      }
+      fieldExtendedData.setPos( field_.data.asUInt );
+      auto length = fieldExtendedData.read<uint8_t>(); // one byte size - 255 as maximum
+      if( length != 0 ){ json_["value"] = fieldExtendedData.readString(length); }
+      if( debug ){ json_["value"]["length"] = length; }
       break;
     }
+
     case GffDataType::LocalizedString:
     {
-      LocalizedString ls{};
-
-      auto byteOffset{field_.data.asUInt};
-
-
-      auto length = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
+      fieldExtendedData.setPos( field_.data.asUInt );
+      auto length = fieldExtendedData.read<uint32_t>();
       if( debug ){ json_["value"]["length"] = length; }
-      byteOffset += sizeof(length);
-
       if( length != 0 ){
-        ls.id = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
-        json_["value"]["strref"] = ls.id;
-        byteOffset += sizeof(ls.id);
+        json_["value"]["strref"] = fieldExtendedData.read<uint32_t>();
+        auto count = fieldExtendedData.read<uint32_t>();
+        if( debug ){ json_["value"]["count"] = count; }
 
-        ls.count = *(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]));
-        byteOffset += sizeof(ls.count);
-        if( debug ){ json_["value"]["count"] = ls.count; }
-
-        for( unsigned int iStr = 0 ; iStr < ls.count ; iStr++ ){
-
+        for( unsigned int iStr = 0 ; iStr < count ; iStr++ ){
           auto& strJson = json_["value"]["str"].emplace_back();
-          LanguageId l{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
-          strJson["language"] = l.toString();
-          byteOffset += sizeof(l);
-          unsigned int strLength{*(reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[byteOffset]))};
+          strJson["language"] = fieldExtendedData.read<LanguageId>().toString();
+          auto strLength = fieldExtendedData.read<uint32_t>();
+          strJson["string"] = fieldExtendedData.readString(strLength);
           if( debug ){ strJson["length"] = strLength; }
-          byteOffset += sizeof(strLength);
-          byteOffset += strLength;
-          std::string value; value.resize(strLength);
-          std::memcpy(&value[0], &this->fieldRawDataList[byteOffset], strLength);
-          json_["value"] = value;
         }
       }
       break;
     }
+
     case GffDataType::Struct:
     {
       this->structToJson(json_["value"], this->structList[field_.data.asUInt]);
@@ -287,42 +227,39 @@ void GenericFileFormat::fieldToJson(nlohmann::ordered_json& json_, const Field& 
     }
     case GffDataType::List:
     {
-      unsigned int byteOffset{field_.data.asUInt};
-      auto length = *(reinterpret_cast<const DataChunk*>(&this->listIndexList[byteOffset]));
-      byteOffset += sizeof(length);
-      for( unsigned int iEntry = 0 ; iEntry < length.asUInt ; iEntry++ ){
-        auto structIndex = *(reinterpret_cast<const DataChunk*>(&this->listIndexList[byteOffset + iEntry*sizeof(DataChunk)]));
-        this->structToJson(json_["value"].emplace_back(), this->structList[structIndex.asUInt]);
+      auto length = listIndexData.readAt<uint32_t>(field_.data.asUInt);
+      for( unsigned int iEntry = 0 ; iEntry < length ; iEntry++ ){
+        auto structIndex = listIndexData.readAt<uint32_t>(field_.data.asUInt + iEntry*sizeof(uint32_t));
+        this->structToJson(json_["value"].emplace_back(), this->structList[structIndex]);
       }
       break;
     }
     case GffDataType::Orientation:
     {
       std::vector<float> value(4);
-      auto* dataPtr = reinterpret_cast<const float*>(&this->fieldRawDataList[field_.data.asUInt]);
-      value[0] = *(dataPtr++);
-      value[1] = *(dataPtr++);
-      value[2] = *(dataPtr++);
-      value[3] = *(dataPtr++);
+      fieldExtendedData.setPos( field_.data.asUInt );
+      value[0] = fieldExtendedData.read<float>();
+      value[1] = fieldExtendedData.read<float>();
+      value[2] = fieldExtendedData.read<float>();
+      value[3] = fieldExtendedData.read<float>();
       json_["value"] = value;
       break;
     }
     case GffDataType::Position:
     {
       std::vector<float> value(3);
-      auto* dataPtr = reinterpret_cast<const float*>(&this->fieldRawDataList[field_.data.asUInt]);
-      value[0] = *(dataPtr++);
-      value[1] = *(dataPtr++);
-      value[2] = *(dataPtr++);
+      fieldExtendedData.setPos( field_.data.asUInt );
+      value[0] = fieldExtendedData.read<float>();
+      value[1] = fieldExtendedData.read<float>();
+      value[2] = fieldExtendedData.read<float>();
       json_["value"] = value;
       break;
     }
     case GffDataType::StringReference:
     {
-      auto* dataPtr = reinterpret_cast<const unsigned int*>(&this->fieldRawDataList[field_.data.asUInt]);
-      unsigned int size{*(dataPtr++)};
-      if( size != 4 ){ json_["error"] = "invalid strref size."; }
-      json_["value"] = *(dataPtr++);
+      fieldExtendedData.setPos( field_.data.asUInt );
+      if( fieldExtendedData.read<unsigned int>() != 4 ){ json_["error"] = "invalid strref size."; }
+      json_["value"] = fieldExtendedData.read<unsigned int>();
       break;
     }
 
