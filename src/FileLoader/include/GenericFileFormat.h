@@ -5,11 +5,11 @@
 #ifndef KOTOR_CPP_TOOLS_GENERIC_FILE_FORMAT_H
 #define KOTOR_CPP_TOOLS_GENERIC_FILE_FORMAT_H
 
-#include "GenericToolbox.Stream.h"
 
 #include "KotorBinaryFile.h"
 
 #include "GenericToolbox.h"
+#include "GenericToolbox.Stream.h"
 
 #include <array>
 #include <vector>

@@ -15,7 +15,7 @@ LoggerInit([]{
 
 void KotorBinaryFile::read(const std::string& filePath_){
   LogInfo << __METHOD_NAME__ << std::endl;
-  if( GenericToolbox::doesFilePathHasExtension(filePath_, "json") ){
+  if( GenericToolbox::hasExtension(filePath_, "json") ){
     auto json = GenericToolbox::Json::readConfigFile<nlohmann::ordered_json>( filePath_ );
     this->readJson( json );
   }
@@ -28,7 +28,7 @@ void KotorBinaryFile::read(const std::string& filePath_){
   }
 }
 void KotorBinaryFile::write(const std::string& filePath_){
-  if( GenericToolbox::doesFilePathHasExtension(filePath_, "json") ){
+  if( GenericToolbox::hasExtension(filePath_, "json") ){
     nlohmann::ordered_json jsonData;
     this->writeJson( jsonData );
     GenericToolbox::dumpStringInFile(
