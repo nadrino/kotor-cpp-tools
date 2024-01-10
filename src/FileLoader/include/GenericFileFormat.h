@@ -19,6 +19,13 @@
 
 
 #define MAKE_ENUM \
+  ENUM_NAME( TestEnum ) \
+  ENUM_ENTRY( UChar, 0 ) ENUM_ENTRY( Char ) \
+  ENUM_ENTRY( UShort ) ENUM_ENTRY( Short )
+#include "GenericToolbox.MakeEnum.h"
+#undef MAKE_ENUM
+
+#define MAKE_ENUM \
   ENUM_NAME( GffDataType ) \
   ENUM_TYPE( unsigned int ) \
   ENUM_ENTRY( UChar, 0 ) ENUM_ENTRY( Char ) \
