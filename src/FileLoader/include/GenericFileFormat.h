@@ -18,50 +18,42 @@
 #include <cstdint>
 
 
-#define MAKE_ENUM \
-  ENUM_NAME( TestEnum ) \
-  ENUM_ENTRY( UChar, 0 ) ENUM_ENTRY( Char ) \
-  ENUM_ENTRY( UShort ) ENUM_ENTRY( Short )
+#define ENUM_NAME GffDataType
+#define ENUM_TYPE unsigned int
+#define ENUM_OVERFLOW ENUM_FIELD( BadGffDataType, 0x0FFFFFFF )
+#define ENUM_FIELDS \
+  ENUM_FIELD( UChar, 0 ) ENUM_FIELD( Char ) \
+  ENUM_FIELD( UShort ) ENUM_FIELD( Short ) \
+  ENUM_FIELD( UInt ) ENUM_FIELD( Int ) \
+  ENUM_FIELD( ULong ) ENUM_FIELD( Long ) \
+  ENUM_FIELD( Float ) ENUM_FIELD( Double ) \
+  ENUM_FIELD( ExoString ) \
+  ENUM_FIELD( ResourceReference ) \
+  ENUM_FIELD( LocalizedString ) \
+  ENUM_FIELD( Void ) \
+  ENUM_FIELD( Struct ) \
+  ENUM_FIELD( List ) \
+  ENUM_FIELD( Orientation ) \
+  ENUM_FIELD( Position ) \
+  ENUM_FIELD( StringReference ) \
+  ENUM_FIELD( TopLevelStruct, 0xFFFFFFFF )
 #include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
-#define MAKE_ENUM \
-  ENUM_NAME( GffDataType ) \
-  ENUM_TYPE( unsigned int ) \
-  ENUM_ENTRY( UChar, 0 ) ENUM_ENTRY( Char ) \
-  ENUM_ENTRY( UShort ) ENUM_ENTRY( Short ) \
-  ENUM_ENTRY( UInt ) ENUM_ENTRY( Int ) \
-  ENUM_ENTRY( ULong ) ENUM_ENTRY( Long ) \
-  ENUM_ENTRY( Float ) ENUM_ENTRY( Double ) \
-  ENUM_ENTRY( ExoString ) \
-  ENUM_ENTRY( ResourceReference ) \
-  ENUM_ENTRY( LocalizedString ) \
-  ENUM_ENTRY( Void ) \
-  ENUM_ENTRY( Struct ) \
-  ENUM_ENTRY( List ) \
-  ENUM_ENTRY( Orientation ) \
-  ENUM_ENTRY( Position ) \
-  ENUM_ENTRY( StringReference ) \
-  ENUM_ENTRY( TopLevelStruct, 0xFFFFFFFF ) \
-  ENUM_OVERFLOW( BadGffDataType, 0x0FFFFFFF )
-#include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
-#define MAKE_ENUM \
-  ENUM_NAME( LanguageId ) \
-  ENUM_TYPE( unsigned int ) \
-  ENUM_ENTRY( English, 0 )\
-  ENUM_ENTRY( French ) \
-  ENUM_ENTRY( German ) \
-  ENUM_ENTRY( Italian ) \
-  ENUM_ENTRY( Spanish ) \
-  ENUM_ENTRY( Polish ) \
-  ENUM_ENTRY( Korean, 128 ) \
-  ENUM_ENTRY( ChineseTraditional, 129 ) \
-  ENUM_ENTRY( ChineseSimplified, 130 ) \
-  ENUM_ENTRY( Japanese, 131 )
+#define ENUM_NAME LanguageId
+#define ENUM_TYPE unsigned int
+#define ENUM_FIELDS \
+  ENUM_FIELD( English, 0 )\
+  ENUM_FIELD( French ) \
+  ENUM_FIELD( German ) \
+  ENUM_FIELD( Italian ) \
+  ENUM_FIELD( Spanish ) \
+  ENUM_FIELD( Polish ) \
+  ENUM_FIELD( Korean, 128 ) \
+  ENUM_FIELD( ChineseTraditional, 129 ) \
+  ENUM_FIELD( ChineseSimplified, 130 ) \
+  ENUM_FIELD( Japanese, 131 )
 #include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
 
 union DataChunk{

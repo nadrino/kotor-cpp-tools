@@ -11,23 +11,21 @@
 #include <iostream>
 
 
-#define MAKE_ENUM \
-  ENUM_NAME( GeometryReference ) \
-  ENUM_TYPE( size_t ) \
-  ENUM_ENTRY( K1,      0x0040552000413670 ) \
-  ENUM_ENTRY( K1_Anim, 0x0043ece0004134f0 ) \
-  ENUM_ENTRY( K2,      0x0040560000416310 ) \
-  ENUM_ENTRY( K2_Anim, 0x004503b000416190 )
+#define ENUM_NAME GeometryReference
+#define ENUM_TYPE size_t
+#define ENUM_FIELDS \
+  ENUM_FIELD( K1,      0x0040552000413670 ) \
+  ENUM_FIELD( K1_Anim, 0x0043ece0004134f0 ) \
+  ENUM_FIELD( K2,      0x0040560000416310 ) \
+  ENUM_FIELD( K2_Anim, 0x004503b000416190 )
 #include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
-#define MAKE_ENUM \
-  ENUM_NAME( GeometryType ) \
-  ENUM_TYPE( unsigned char ) \
-  ENUM_ENTRY( RootNode, 0x02 ) \
-  ENUM_ENTRY( AnimationNode, 0x05 )
+#define ENUM_NAME GeometryType
+#define ENUM_TYPE unsigned char
+#define ENUM_FIELDS \
+  ENUM_FIELD( RootNode, 0x02 ) \
+  ENUM_FIELD( AnimationNode, 0x05 )
 #include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
 
 class MdlFile : public KotorBinaryFile{

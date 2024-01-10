@@ -15,16 +15,15 @@
 #include <vector>
 
 
-#define MAKE_ENUM \
-  ENUM_NAME( LipShape ) \
-  ENUM_TYPE( unsigned char ) \
-  ENUM_ENTRY( EE, 0 ) ENUM_ENTRY( EH ) ENUM_ENTRY( SCHWA )   \
-  ENUM_ENTRY( AH ) ENUM_ENTRY( OH ) ENUM_ENTRY( OOH )   \
-  ENUM_ENTRY( Y ) ENUM_ENTRY( S_TS ) ENUM_ENTRY( F_V ) ENUM_ENTRY( N_NG )   \
-  ENUM_ENTRY( TH ) ENUM_ENTRY( M_P_B ) ENUM_ENTRY( T_D ) ENUM_ENTRY( J_SH )   \
-  ENUM_ENTRY( L_R ) ENUM_ENTRY( K_G )
+#define ENUM_NAME LipShape
+#define ENUM_TYPE unsigned char
+#define ENUM_FIELDS \
+  ENUM_FIELD( EE, 0 ) ENUM_FIELD( EH ) ENUM_FIELD( SCHWA )   \
+  ENUM_FIELD( AH ) ENUM_FIELD( OH ) ENUM_FIELD( OOH )   \
+  ENUM_FIELD( Y ) ENUM_FIELD( S_TS ) ENUM_FIELD( F_V ) ENUM_FIELD( N_NG )   \
+  ENUM_FIELD( TH ) ENUM_FIELD( M_P_B ) ENUM_FIELD( T_D ) ENUM_FIELD( J_SH )   \
+  ENUM_FIELD( L_R ) ENUM_FIELD( K_G )
 #include "GenericToolbox.MakeEnum.h"
-#undef MAKE_ENUM
 
 
 class LipSyncFile : public KotorBinaryFile {
